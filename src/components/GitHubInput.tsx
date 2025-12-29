@@ -70,7 +70,7 @@ const GitHubInput = () => {
       </div>
       
       {/* Scanning animation */}
-      {isAnalyzing && (
+      {isLoading && (
         <div className="mt-6 relative h-2 rounded-full overflow-hidden bg-muted">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent animate-scanning" />
         </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Github, Sparkles, ArrowRight } from "lucide-react";
@@ -7,7 +8,7 @@ import { toast } from "sonner";
 const GitHubInput = () => {
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,30 +19,11 @@ const GitHubInput = () => {
     }
 
     setIsLoading(true);
-    setIsAnalyzing(true);
     
-    // Simulate analysis stages
-    const stages = [
-      "正在连接 GitHub API...",
-      "正在获取仓库信息...",
-      "正在分析代码结构...",
-      "AI 正在解读技术栈...",
-      "正在生成代码宇宙...",
-    ];
-    
-    for (let i = 0; i < stages.length; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      toast.info(stages[i], { duration: 1500 });
-    }
-    
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    
-    toast.success(`成功分析 ${username} 的代码宇宙!`, {
-      description: "即将跳转到您的 3D 星系...",
-    });
-    
-    setIsLoading(false);
-    setIsAnalyzing(false);
+    // Navigate to profile page with username
+    setTimeout(() => {
+      navigate(`/profile?user=${encodeURIComponent(username.trim())}`);
+    }, 500);
   };
 
   return (

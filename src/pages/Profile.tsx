@@ -208,7 +208,7 @@ const Profile = () => {
               </div>
             </div>
             {/* User header */}
-            <header className="glass-card rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "100ms", animationFillMode: "forwards" }}>
+            <header className="glass-card hover-lift rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "100ms", animationFillMode: "forwards" }}>
               <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
                 {/* Avatar */}
                 <div className="relative">
@@ -274,7 +274,7 @@ const Profile = () => {
             </header>
 
             {/* AI Analysis Section */}
-            <section className="glass-card rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "200ms", animationFillMode: "forwards" }}>
+            <section className="glass-card hover-lift rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "200ms", animationFillMode: "forwards" }}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-primary" />
@@ -351,26 +351,26 @@ const Profile = () => {
             {/* Languages and repos section */}
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Language stats */}
-              <section className="glass-card rounded-3xl p-6 opacity-0 animate-slide-up" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
+              <section className="glass-card hover-lift rounded-3xl p-6 opacity-0 animate-slide-up" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
                 <h2 className="text-xl font-bold text-foreground mb-4">技术栈分布</h2>
                 <LanguageChart languages={githubData.languages} />
               </section>
 
               {/* Contribution stats */}
-              <section className="glass-card rounded-3xl p-6 lg:col-span-2 opacity-0 animate-slide-up" style={{ animationDelay: "400ms", animationFillMode: "forwards" }}>
+              <section className="glass-card hover-lift rounded-3xl p-6 lg:col-span-2 opacity-0 animate-slide-up" style={{ animationDelay: "400ms", animationFillMode: "forwards" }}>
                 <h2 className="text-xl font-bold text-foreground mb-4">贡献统计</h2>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 rounded-xl bg-muted/30">
+                  <div className="text-center p-4 rounded-xl bg-muted/30 hover-glow transition-all duration-300 cursor-default">
                     <GitCommit className="w-6 h-6 text-primary mx-auto mb-2" />
                     <div className="text-2xl font-bold text-foreground">{githubData.contributions.total}</div>
                     <div className="text-sm text-muted-foreground">总贡献</div>
                   </div>
-                  <div className="text-center p-4 rounded-xl bg-muted/30">
+                  <div className="text-center p-4 rounded-xl bg-muted/30 hover-glow transition-all duration-300 cursor-default">
                     <Hash className="w-6 h-6 text-primary mx-auto mb-2" />
                     <div className="text-2xl font-bold text-foreground">{githubData.contributions.commits}</div>
                     <div className="text-sm text-muted-foreground">Commits</div>
                   </div>
-                  <div className="text-center p-4 rounded-xl bg-muted/30">
+                  <div className="text-center p-4 rounded-xl bg-muted/30 hover-glow transition-all duration-300 cursor-default">
                     <GitPullRequest className="w-6 h-6 text-primary mx-auto mb-2" />
                     <div className="text-2xl font-bold text-foreground">{githubData.contributions.pullRequests}</div>
                     <div className="text-sm text-muted-foreground">PRs</div>

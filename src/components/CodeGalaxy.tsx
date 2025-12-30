@@ -1,8 +1,9 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import { Canvas, useFrame, extend } from "@react-three/fiber";
-import { OrbitControls, Float, Stars, Line } from "@react-three/drei";
+import { OrbitControls, Float, Stars, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { GitHubData } from "@/types/github";
+import { Star, GitCommit } from "lucide-react";
 
 extend({ Line_: THREE.Line });
 
@@ -38,23 +39,29 @@ function RepoNode({
   size, 
   color, 
   name,
-  commits 
+  commits,
+  language,
+  stars,
 }: { 
   position: [number, number, number]; 
   size: number; 
   color: string;
   name: string;
   commits: number;
+  language: string | null;
+  stars: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
+  const [hovered, setHovered] = useState(false);
   
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.005;
     }
     if (glowRef.current) {
-      glowRef.current.scale.setScalar(1 + Math.sin(state.clock.elapsedTime * 2) * 0.1);
+      const baseScale = hovered ? 1.5 : 1;
+      glowRef.current.scale.setScalar(baseScale + Math.sin(state.clock.elapsedTime * 2) * 0.1);
     }
   });
 
@@ -67,27 +74,71 @@ function RepoNode({
           <meshBasicMaterial 
             color={color} 
             transparent 
-            opacity={0.15} 
+            opacity={hovered ? 0.35 : 0.15} 
           />
         </mesh>
         
-        {/* Main sphere */}
-        <mesh ref={meshRef}>
+        {/* Main sphere - interactive */}
+        <mesh 
+          ref={meshRef}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            setHovered(true);
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerOut={() => {
+            setHovered(false);
+            document.body.style.cursor = 'auto';
+          }}
+        >
           <sphereGeometry args={[size, 32, 32]} />
           <meshStandardMaterial 
             color={color}
             emissive={color}
-            emissiveIntensity={0.3}
+            emissiveIntensity={hovered ? 0.6 : 0.3}
             metalness={0.3}
             roughness={0.7}
           />
         </mesh>
         
+        {/* Tooltip on hover */}
+        {hovered && (
+          <Html
+            position={[0, size + 0.5, 0]}
+            center
+            distanceFactor={10}
+            style={{ pointerEvents: 'none' }}
+          >
+            <div className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg px-3 py-2 shadow-xl min-w-[140px] animate-fade-in">
+              <p className="font-semibold text-foreground text-sm truncate max-w-[160px]">{name}</p>
+              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                {language && (
+                  <span className="flex items-center gap-1">
+                    <span 
+                      className="w-2 h-2 rounded-full" 
+                      style={{ backgroundColor: color }}
+                    />
+                    {language}
+                  </span>
+                )}
+                <span className="flex items-center gap-1">
+                  <Star className="w-3 h-3" />
+                  {stars}
+                </span>
+                <span className="flex items-center gap-1">
+                  <GitCommit className="w-3 h-3" />
+                  {commits}
+                </span>
+              </div>
+            </div>
+          </Html>
+        )}
+        
         {/* Orbit ring for active repos */}
         {commits > 10 && (
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <torusGeometry args={[size * 1.8, 0.02, 8, 64]} />
-            <meshBasicMaterial color={color} transparent opacity={0.4} />
+            <meshBasicMaterial color={color} transparent opacity={hovered ? 0.7 : 0.4} />
           </mesh>
         )}
       </group>
@@ -209,6 +260,8 @@ function GalaxyScene({ data }: { data: GitHubData }) {
         color,
         name: repo.name,
         commits: repo.commitCount,
+        language: repo.language,
+        stars: repo.stars,
       };
     });
   }, [data.repositories]);

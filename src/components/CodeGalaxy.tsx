@@ -90,6 +90,10 @@ function RepoNode({
             setHovered(false);
             document.body.style.cursor = 'auto';
           }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setHovered(!hovered);
+          }}
         >
           <sphereGeometry args={[size, 32, 32]} />
           <meshStandardMaterial 
@@ -101,32 +105,33 @@ function RepoNode({
           />
         </mesh>
         
-        {/* Tooltip on hover */}
+        {/* Tooltip on hover/tap */}
         {hovered && (
           <Html
             position={[0, size + 0.5, 0]}
             center
-            distanceFactor={10}
+            distanceFactor={8}
             style={{ pointerEvents: 'none' }}
+            zIndexRange={[100, 0]}
           >
-            <div className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg px-3 py-2 shadow-xl min-w-[140px] animate-fade-in">
-              <p className="font-semibold text-foreground text-sm truncate max-w-[160px]">{name}</p>
-              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+            <div className="bg-card/95 backdrop-blur-md border border-border/50 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 shadow-xl min-w-[120px] sm:min-w-[140px] animate-fade-in">
+              <p className="font-semibold text-foreground text-xs sm:text-sm truncate max-w-[140px] sm:max-w-[160px]">{name}</p>
+              <div className="flex items-center gap-2 sm:gap-3 mt-1 text-[10px] sm:text-xs text-muted-foreground">
                 {language && (
                   <span className="flex items-center gap-1">
                     <span 
-                      className="w-2 h-2 rounded-full" 
+                      className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0" 
                       style={{ backgroundColor: color }}
                     />
-                    {language}
+                    <span className="truncate max-w-[50px] sm:max-w-none">{language}</span>
                   </span>
                 )}
-                <span className="flex items-center gap-1">
-                  <Star className="w-3 h-3" />
+                <span className="flex items-center gap-0.5 sm:gap-1">
+                  <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   {stars}
                 </span>
-                <span className="flex items-center gap-1">
-                  <GitCommit className="w-3 h-3" />
+                <span className="flex items-center gap-0.5 sm:gap-1">
+                  <GitCommit className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   {commits}
                 </span>
               </div>
@@ -336,13 +341,17 @@ function GalaxyScene({ data }: { data: GitHubData }) {
 
 export default function CodeGalaxy({ data }: CodeGalaxyProps) {
   return (
-    <div className="w-full h-[500px] rounded-2xl overflow-hidden bg-background/50">
+    <div className="w-full h-[350px] sm:h-[400px] md:h-[500px] rounded-2xl overflow-hidden bg-background/50 touch-none">
       <Canvas
         camera={{ position: [0, 5, 12], fov: 60 }}
         gl={{ antialias: true, alpha: true }}
       >
         <GalaxyScene data={data} />
       </Canvas>
+      {/* Mobile hint */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/60 pointer-events-none sm:hidden">
+        双指缩放 · 单指旋转
+      </div>
     </div>
   );
 }

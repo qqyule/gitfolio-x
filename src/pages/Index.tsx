@@ -154,13 +154,24 @@ const Index = () => {
 								{
 									img: showcase1,
 									name: 'Linus Torvalds',
+									handle: 'torvalds',
 									desc: 'Linux 内核之父',
 								},
-								{ img: showcase2, name: 'Evan You', desc: 'Vue.js 创始人' },
-								{ img: showcase3, name: 'Dan Abramov', desc: 'React 核心团队' },
+								{
+									img: showcase2,
+									name: 'Evan You',
+									handle: 'yyx990803',
+									desc: 'Vue.js 创始人',
+								},
+								{
+									img: showcase3,
+									name: 'Dan Abramov',
+									handle: 'gaearon',
+									desc: 'React 核心团队',
+								},
 							].map((item, i) => (
 								<div
-									key={item.name}
+									key={item.handle}
 									className="group relative overflow-hidden rounded-xl glass-card border border-border/30 hover:border-primary/50 transition-all duration-500 opacity-0 animate-fade-in"
 									style={{ animationDelay: `${i * 150 + 100}ms` }}
 								>
@@ -173,8 +184,9 @@ const Index = () => {
 									</div>
 									<div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
 									<div className="absolute bottom-0 left-0 right-0 p-4">
-										<h3 className="text-lg font-semibold text-foreground">
-											{item.name}
+										<h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+											<span className="text-primary">@{item.handle}</span>
+											<span>{item.name}</span>
 										</h3>
 										<p className="text-sm text-muted-foreground">{item.desc}</p>
 									</div>

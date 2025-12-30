@@ -10,6 +10,41 @@ const corsHeaders = {
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
 const GITHUB_REST_URL = 'https://api.github.com'
 
+// Retry fetch with exponential backoff for temporary errors
+async function fetchWithRetry(
+	url: string, 
+	options: RequestInit, 
+	maxRetries = 3
+): Promise<Response> {
+	let lastError: Error | null = null
+	
+	for (let attempt = 0; attempt < maxRetries; attempt++) {
+		try {
+			const response = await fetch(url, options)
+			
+			// Retry on 502, 503, 504 (temporary server errors)
+			if ([502, 503, 504].includes(response.status)) {
+				console.log(`Attempt ${attempt + 1}: Got ${response.status}, retrying...`)
+				if (attempt < maxRetries - 1) {
+					await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)))
+					continue
+				}
+			}
+			
+			return response
+		} catch (error) {
+			console.error(`Attempt ${attempt + 1} failed:`, error)
+			lastError = error instanceof Error ? error : new Error(String(error))
+			
+			if (attempt < maxRetries - 1) {
+				await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)))
+			}
+		}
+	}
+	
+	throw lastError || new Error('All retry attempts failed')
+}
+
 // GraphQL query for user data
 const USER_QUERY = `
 query($username: String!) {
@@ -112,7 +147,7 @@ serve(async (req) => {
 
 		if (githubToken) {
 			// Use GraphQL API with token
-			const graphqlResponse = await fetch(GITHUB_GRAPHQL_URL, {
+			const graphqlResponse = await fetchWithRetry(GITHUB_GRAPHQL_URL, {
 				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${githubToken}`,
@@ -149,7 +184,7 @@ serve(async (req) => {
 			console.log('No GitHub token, using REST API')
 
 			// Fetch user profile
-			const userResponse = await fetch(`${GITHUB_REST_URL}/users/${username}`, {
+			const userResponse = await fetchWithRetry(`${GITHUB_REST_URL}/users/${username}`, {
 				headers: { 
 					Accept: 'application/vnd.github.v3+json',
 					'User-Agent': 'GitFolio-App',
@@ -183,7 +218,7 @@ serve(async (req) => {
 			const userProfile = await userResponse.json()
 
 			// Fetch repos
-			const reposResponse = await fetch(
+			const reposResponse = await fetchWithRetry(
 				`${GITHUB_REST_URL}/users/${username}/repos?sort=updated&per_page=20`,
 				{ 
 					headers: { 
@@ -207,7 +242,7 @@ serve(async (req) => {
 			const reposWithLanguages = await Promise.all(
 				(Array.isArray(repos) ? repos.slice(0, 10) : []).map(async (repo: any) => {
 					try {
-						const langResponse = await fetch(repo.languages_url, {
+						const langResponse = await fetchWithRetry(repo.languages_url, {
 							headers: { 
 								Accept: 'application/vnd.github.v3+json',
 								'User-Agent': 'GitFolio-App',

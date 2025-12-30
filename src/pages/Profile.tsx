@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Sparkles, MapPin, Building, Calendar, Users, Star, GitFork, GitCommit } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles, MapPin, Building, Calendar, Users, Star, GitFork, GitCommit, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import StarField from "@/components/StarField";
 import SkillsRadar from "@/components/SkillsRadar";
 import LanguageChart from "@/components/LanguageChart";
@@ -10,6 +11,7 @@ import RepoCard from "@/components/RepoCard";
 import { fetchGitHubData, analyzeCode } from "@/lib/github";
 import type { GitHubData, AIAnalysis } from "@/types/github";
 import galaxyHero from "@/assets/galaxy-hero.jpg";
+import html2canvas from "html2canvas";
 
 type AnalysisStage = 
   | "fetching" 
@@ -21,11 +23,56 @@ const Profile = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const username = searchParams.get("user") || "";
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isSharing, setIsSharing] = useState(false);
 
   const [stage, setStage] = useState<AnalysisStage>("fetching");
   const [statusMessage, setStatusMessage] = useState("正在连接 GitHub API...");
   const [githubData, setGithubData] = useState<GitHubData | null>(null);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
+
+  const handleShareToX = async () => {
+    if (!contentRef.current) return;
+    
+    setIsSharing(true);
+    try {
+      // Capture screenshot
+      const canvas = await html2canvas(contentRef.current, {
+        backgroundColor: "#0a0a0f",
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      
+      // Convert to blob and download
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          // Download screenshot
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `github-profile-${username}.png`;
+          link.click();
+          URL.revokeObjectURL(url);
+          
+          toast.success("截图已下载！请在发推时附上截图");
+        }
+      }, "image/png");
+      
+      // Open X share dialog with link
+      const shareUrl = window.location.href;
+      const shareText = `我刚刚用 AI 分析了 @${username} 的 GitHub 代码宇宙！来看看这份技术画像 🚀`;
+      const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      
+      window.open(xUrl, "_blank", "width=600,height=400");
+      
+    } catch (error) {
+      console.error("Share error:", error);
+      toast.error("分享失败，请重试");
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   useEffect(() => {
     if (!username) {
@@ -149,7 +196,33 @@ const Profile = () => {
 
         {/* Complete state */}
         {stage === "complete" && githubData && analysis && (
-          <div className="space-y-8">
+          <div ref={contentRef} className="space-y-8 relative">
+            {/* Share button - top right */}
+            <div className="absolute right-0 -top-2 z-20">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleShareToX}
+                      disabled={isSharing}
+                      className="gap-2 bg-card/80 backdrop-blur-sm border-primary/30 hover:bg-primary/10 hover:border-primary"
+                    >
+                      {isSharing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Share2 className="w-4 h-4" />
+                      )}
+                      分享到 𝕏
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="max-w-[200px]">
+                    <p>点击后将下载截图并打开 X，<br />请在发推时附上截图</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             {/* User header */}
             <header className="glass-card rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "100ms", animationFillMode: "forwards" }}>
               <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">

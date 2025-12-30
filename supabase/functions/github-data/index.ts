@@ -107,7 +107,7 @@ serve(async (req) => {
 
 		// Try GraphQL first (requires token for better rate limits)
 		const githubToken = Deno.env.get('GITHUB_TOKEN')
-		console.log(`GitHub token: ${githubToken}`)
+		console.log(`GitHub token configured: ${!!githubToken}`)
 		let userData
 
 		if (githubToken) {
@@ -117,12 +117,22 @@ serve(async (req) => {
 				headers: {
 					Authorization: `Bearer ${githubToken}`,
 					'Content-Type': 'application/json',
+					'User-Agent': 'GitFolio-App',
 				},
 				body: JSON.stringify({
 					query: USER_QUERY,
 					variables: { username },
 				}),
 			})
+
+			// Check if response is valid JSON
+			const contentType = graphqlResponse.headers.get('content-type')
+			if (!contentType?.includes('application/json')) {
+				console.error('GraphQL response is not JSON, status:', graphqlResponse.status)
+				const textResponse = await graphqlResponse.text()
+				console.error('Response preview:', textResponse.substring(0, 200))
+				throw new Error(`GitHub API returned non-JSON response (status: ${graphqlResponse.status})`)
+			}
 
 			const graphqlData = await graphqlResponse.json()
 
@@ -140,7 +150,10 @@ serve(async (req) => {
 
 			// Fetch user profile
 			const userResponse = await fetch(`${GITHUB_REST_URL}/users/${username}`, {
-				headers: { Accept: 'application/vnd.github.v3+json' },
+				headers: { 
+					Accept: 'application/vnd.github.v3+json',
+					'User-Agent': 'GitFolio-App',
+				},
 			})
 
 			if (!userResponse.ok) {
@@ -150,7 +163,21 @@ serve(async (req) => {
 						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 					})
 				}
+				if (userResponse.status === 403) {
+					return new Response(JSON.stringify({ error: 'GitHub API rate limit exceeded. Please try again later.' }), {
+						status: 429,
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					})
+				}
 				throw new Error(`GitHub API error: ${userResponse.status}`)
+			}
+
+			// Check content type before parsing JSON
+			const contentType = userResponse.headers.get('content-type')
+			if (!contentType?.includes('application/json')) {
+				const textResponse = await userResponse.text()
+				console.error('User response is not JSON:', textResponse.substring(0, 200))
+				throw new Error('GitHub API returned invalid response format')
 			}
 
 			const userProfile = await userResponse.json()
@@ -158,17 +185,37 @@ serve(async (req) => {
 			// Fetch repos
 			const reposResponse = await fetch(
 				`${GITHUB_REST_URL}/users/${username}/repos?sort=updated&per_page=20`,
-				{ headers: { Accept: 'application/vnd.github.v3+json' } }
+				{ 
+					headers: { 
+						Accept: 'application/vnd.github.v3+json',
+						'User-Agent': 'GitFolio-App',
+					} 
+				}
 			)
-			const repos = await reposResponse.json()
+			
+			if (!reposResponse.ok) {
+				console.error('Failed to fetch repos:', reposResponse.status)
+				// Continue with empty repos rather than failing
+			}
+			
+			const reposContentType = reposResponse.headers.get('content-type')
+			const repos = reposResponse.ok && reposContentType?.includes('application/json') 
+				? await reposResponse.json() 
+				: []
 
-			// Fetch languages for each repo
+			// Fetch languages for each repo (with error handling)
 			const reposWithLanguages = await Promise.all(
-				repos.slice(0, 10).map(async (repo: any) => {
+				(Array.isArray(repos) ? repos.slice(0, 10) : []).map(async (repo: any) => {
 					try {
 						const langResponse = await fetch(repo.languages_url, {
-							headers: { Accept: 'application/vnd.github.v3+json' },
+							headers: { 
+								Accept: 'application/vnd.github.v3+json',
+								'User-Agent': 'GitFolio-App',
+							},
 						})
+						if (!langResponse.ok) return repo
+						const langContentType = langResponse.headers.get('content-type')
+						if (!langContentType?.includes('application/json')) return repo
 						const languages = await langResponse.json()
 						return { ...repo, languageBreakdown: languages }
 					} catch {

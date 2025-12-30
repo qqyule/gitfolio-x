@@ -29,7 +29,7 @@ const Profile = () => {
   const [githubData, setGithubData] = useState<GitHubData | null>(null);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [showShareGuide, setShowShareGuide] = useState(false);
-  const [showGalaxy, setShowGalaxy] = useState(false);
+  const [galaxyState, setGalaxyState] = useState<"idle" | "loading" | "ready">("idle");
   const guideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleShareToX = () => {
@@ -284,21 +284,62 @@ const Profile = () => {
                   </div>
                   <h2 className="text-2xl font-bold text-foreground">代码宇宙</h2>
                 </div>
-                {!showGalaxy && (
+                {galaxyState === "idle" && (
                   <span className="text-xs text-muted-foreground">点击下方启动 3D 可视化</span>
                 )}
               </div>
               
-              {showGalaxy ? (
-                <>
+              {galaxyState === "ready" ? (
+                <div className="animate-fade-in">
                   <p className="text-muted-foreground mb-4">
                     每颗星球代表一个仓库，大小由 Star 数决定，颜色代表主要语言。拖动旋转，滚轮缩放。
                   </p>
                   <CodeGalaxy data={githubData} />
-                </>
+                </div>
+              ) : galaxyState === "loading" ? (
+                <div className="w-full h-[400px] rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/30 flex flex-col items-center justify-center gap-6 overflow-hidden relative">
+                  {/* Animated background */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_hsl(var(--primary)/0.1)_0%,_transparent_70%)] animate-pulse" />
+                    {[...Array(20)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute w-1 h-1 rounded-full bg-primary/60 animate-ping"
+                        style={{
+                          left: `${Math.random() * 100}%`,
+                          top: `${Math.random() * 100}%`,
+                          animationDelay: `${Math.random() * 2}s`,
+                          animationDuration: `${1 + Math.random() * 2}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Loading animation */}
+                  <div className="relative z-10">
+                    <div className="w-24 h-24 relative">
+                      <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
+                      <div className="absolute inset-2 rounded-full border-2 border-primary/40 animate-pulse" />
+                      <div className="absolute inset-4 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 animate-spin" style={{ animationDuration: "3s" }} />
+                      <div className="absolute inset-6 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-primary-foreground animate-spin" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center relative z-10">
+                    <p className="text-foreground font-medium mb-1 animate-pulse">正在生成代码宇宙...</p>
+                    <p className="text-sm text-muted-foreground">
+                      扫描 {githubData.stats.totalRepos} 个仓库，构建星系图谱
+                    </p>
+                  </div>
+                </div>
               ) : (
                 <button
-                  onClick={() => setShowGalaxy(true)}
+                  onClick={() => {
+                    setGalaxyState("loading");
+                    setTimeout(() => setGalaxyState("ready"), 2000);
+                  }}
                   className="w-full h-[300px] rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border/50 hover:border-primary/50 transition-all duration-500 flex flex-col items-center justify-center gap-4 group cursor-pointer"
                 >
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">

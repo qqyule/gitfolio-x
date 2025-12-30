@@ -10,7 +10,18 @@ const corsHeaders = {
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
 const GITHUB_REST_URL = 'https://api.github.com'
-const CACHE_TTL_HOURS = 6 // Cache data for 6 hours
+
+// Get cache TTL from environment, default to 6 hours
+function getCacheTTLHours(): number {
+	const envValue = Deno.env.get('GITHUB_CACHE_TTL_HOURS')
+	if (envValue) {
+		const parsed = parseInt(envValue, 10)
+		if (!isNaN(parsed) && parsed > 0) {
+			return parsed
+		}
+	}
+	return 6 // Default 6 hours
+}
 
 // Initialize Supabase client
 function getSupabaseClient() {
@@ -38,9 +49,10 @@ async function getCachedData(username: string): Promise<any | null> {
 	const updatedAt = new Date(data.updated_at)
 	const now = new Date()
 	const hoursDiff = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60)
+	const cacheTTL = getCacheTTLHours()
 
-	if (hoursDiff > CACHE_TTL_HOURS) {
-		console.log(`Cache expired for ${username} (${hoursDiff.toFixed(1)} hours old)`)
+	if (hoursDiff > cacheTTL) {
+		console.log(`Cache expired for ${username} (${hoursDiff.toFixed(1)} hours old, TTL: ${cacheTTL}h)`)
 		return null
 	}
 

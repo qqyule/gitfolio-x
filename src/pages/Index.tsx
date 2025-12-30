@@ -3,6 +3,7 @@ import GalaxyOrb from '@/components/GalaxyOrb'
 import GitHubInput from '@/components/GitHubInput'
 import FeatureCard from '@/components/FeatureCard'
 import PlanetBackground from '@/components/PlanetBackground'
+import { SEO } from '@/components/SEO'
 import { Globe, Brain, FileCode, Zap, Shield, Palette } from 'lucide-react'
 import galaxyHero from '@/assets/galaxy-hero.jpg'
 import showcase1 from '@/assets/showcase-1.jpg'
@@ -12,6 +13,7 @@ import showcase3 from '@/assets/showcase-3.jpg'
 const Index = () => {
 	return (
 		<div className="relative min-h-screen overflow-hidden">
+			<SEO />
 			{/* Background layers */}
 			<div
 				className="fixed inset-0 z-0 opacity-40"

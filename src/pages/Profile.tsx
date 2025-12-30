@@ -19,6 +19,7 @@ import {
 	Globe,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { SEO } from '@/components/SEO'
 import {
 	Tooltip,
 	TooltipContent,
@@ -136,6 +137,40 @@ const Profile = () => {
 
 	return (
 		<div className="relative min-h-screen overflow-hidden">
+			<SEO
+				title={
+					githubData?.user
+						? `${githubData.user.name || githubData.user.login} (@${
+								githubData.user.login
+						  }) - AI 技术画像`
+						: `${username ? `@${username} ` : ''}代码宇宙分析中...`
+				}
+				description={
+					analysis?.summary ||
+					`查看 ${username} 的 GitHub 3D 可视化简历与 AI 技术分析报告。`
+				}
+				image={githubData?.user?.avatarUrl}
+				type="profile"
+				jsonLd={
+					githubData?.user
+						? {
+								'@context': 'https://schema.org',
+								'@type': 'ProfilePage',
+								mainEntity: {
+									'@type': 'Person',
+									name: githubData.user.name,
+									alternateName: githubData.user.login,
+									image: githubData.user.avatarUrl,
+									description: githubData.user.bio,
+									sameAs: [
+										`https://github.com/${githubData.user.login}`,
+										githubData.user.blog,
+									].filter(Boolean),
+								},
+						  }
+						: undefined
+				}
+			/>
 			{/* Background */}
 			<div
 				className="fixed inset-0 z-0 opacity-30"

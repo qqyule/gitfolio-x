@@ -8,6 +8,7 @@ import StarField from "@/components/StarField";
 import SkillsRadar from "@/components/SkillsRadar";
 import LanguageChart from "@/components/LanguageChart";
 import RepoCard from "@/components/RepoCard";
+import CodeGalaxy from "@/components/CodeGalaxy";
 import { fetchGitHubData, analyzeCode } from "@/lib/github";
 import type { GitHubData, AIAnalysis } from "@/types/github";
 import galaxyHero from "@/assets/galaxy-hero.jpg";
@@ -273,8 +274,22 @@ const Profile = () => {
               </div>
             </header>
 
-            {/* AI Analysis Section */}
+            {/* Code Galaxy Visualization */}
             <section className="glass-card hover-lift rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "200ms", animationFillMode: "forwards" }}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-bold text-foreground">代码宇宙</h2>
+              </div>
+              <p className="text-muted-foreground mb-4">
+                每颗星球代表一个仓库，大小由 Star 数决定，颜色代表主要语言。拖动旋转，滚轮缩放。
+              </p>
+              <CodeGalaxy data={githubData} />
+            </section>
+
+            {/* AI Analysis Section */}
+            <section className="glass-card hover-lift rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-primary" />
@@ -351,13 +366,13 @@ const Profile = () => {
             {/* Languages and repos section */}
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Language stats */}
-              <section className="glass-card hover-lift rounded-3xl p-6 opacity-0 animate-slide-up" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
+              <section className="glass-card hover-lift rounded-3xl p-6 opacity-0 animate-slide-up" style={{ animationDelay: "400ms", animationFillMode: "forwards" }}>
                 <h2 className="text-xl font-bold text-foreground mb-4">技术栈分布</h2>
                 <LanguageChart languages={githubData.languages} />
               </section>
 
               {/* Contribution stats */}
-              <section className="glass-card hover-lift rounded-3xl p-6 lg:col-span-2 opacity-0 animate-slide-up" style={{ animationDelay: "400ms", animationFillMode: "forwards" }}>
+              <section className="glass-card hover-lift rounded-3xl p-6 lg:col-span-2 opacity-0 animate-slide-up" style={{ animationDelay: "500ms", animationFillMode: "forwards" }}>
                 <h2 className="text-xl font-bold text-foreground mb-4">贡献统计</h2>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center p-4 rounded-xl bg-muted/30 hover-glow transition-all duration-300 cursor-default">

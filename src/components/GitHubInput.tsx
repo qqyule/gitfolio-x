@@ -27,22 +27,22 @@ const GitHubInput = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-xl mx-auto">
+    <form onSubmit={handleSubmit} className="w-full max-w-xl mx-auto px-2">
       <div className="relative group">
         {/* Glow background */}
         <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
         
         {/* Input container */}
-        <div className="relative flex gap-2 p-2 rounded-2xl glass-card">
+        <div className="relative flex flex-col sm:flex-row gap-2 p-2 rounded-2xl glass-card">
           <div className="relative flex-1">
             <Github className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="输入您的 GitHub 用户名"
+              placeholder="输入 GitHub 用户名"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               cosmic
-              className="pl-12 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="pl-12 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-12"
               disabled={isLoading}
             />
           </div>
@@ -52,7 +52,7 @@ const GitHubInput = () => {
             variant="cosmic"
             size="lg"
             disabled={isLoading}
-            className="relative overflow-hidden min-w-[140px]"
+            className="relative overflow-hidden w-full sm:w-auto sm:min-w-[140px] h-12"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">

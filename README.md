@@ -1,73 +1,280 @@
-# Welcome to your Lovable project
+# GitFolio X - 生成式代码宇宙
 
-## Project info
+> **本项目由阿里云 ESA 提供加速、计算和保护**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+<div align="center">
+  <img src="https://img.alicdn.com/imgextra/i3/O1CN01H1UU3i1Cti9lYtFrs_!!6000000000139-2-tps-7534-844.png" alt="Logo" width="600" />
+</div>
 
-## How can I edit this code?
+> **将枯燥的代码仓库转化为 3D 可视化交互简历，利用 AI 挖掘代码背后的技术实力**
 
-There are several ways of editing your application.
+<div align="center">
+  <h1>🌌 GitFolio X</h1>
+  <p><strong>让 HR 看懂你的代码实力</strong></p>
+</div>
 
-**Use Lovable**
+## 🚀 项目简介 (Project Overview)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+**GitFolio X** (代号: Galaxy) 是一款创新的可视化 GitHub 简历生成器。它能够将开发者的 GitHub 数据转化为令人惊艳的 3D 星系可视化展示，并通过 AI 智能分析生成专业的技术画像报告。
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🎯 解决的痛点
 
-**Use your preferred IDE**
+- **信息鸿沟**: 学生的 GitHub 往往包含大量课程作业，HR 和非技术面试官只看 Star 数（通常很少）。
+- **展示同质化**: 传统简历模板千篇一律，无法体现"极客"精神。
+- **自我营销弱**: 开发者难以从代码中提炼出软技能描述。
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 💡 我们的解决方案
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **3D 可视化**: 用星系图展示提交记录和项目规模，视觉冲击力强
+- **AI 解读**: 自动分析代码逻辑，生成"技术画像"和"能力雷达"
+- **个性化展示**: 根据用户的技术栈自动调整展示风格
 
-Follow these steps:
+## ✨ 核心功能 (Key Features)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### � 极速入口
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- 仅需输入 GitHub Username，无需 OAuth 登录
+- 实时流式反馈 AI 分析进度
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 🌌 3D 代码星系
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+- 每个 Repository 是一个**星球**（大小取决于代码量/复杂度）
+- 每次 Commit 是环绕星球的**粒子**（颜色代表编程语言）
+- 支持拖拽旋转、点击交互探索
+- 炫酷的 Bloom 后处理效果
+
+### 🤖 AI 技能分析
+
+- **代码质量审计**: AI 采样阅读核心逻辑
+- **自然语言报告**: 生成招聘经理可读的技术画像
+- **技能雷达图**: 前端/后端/DevOps/算法/架构/文档 六维评估
+
+### 📊 数据可视化
+
+- 编程语言分布饼图
+- 贡献热力图
+- 项目卡片展示
+
+## 🛠 技术栈 (Tech Stack)
+
+本项目采用现代化全栈架构，整合了前沿技术：
+
+### Core Framework
+
+- **[Vite](https://vitejs.dev/)** - 极速构建工具
+- **[React 19](https://react.dev/)** - 最新版 UI 核心库
+- **[TypeScript](https://www.typescriptlang.org/)** - 类型安全保证
+
+### UI & Experience
+
+- **[Tailwind CSS](https://tailwindcss.com/)** - 实用优先的 CSS 框架
+- **[Shadcn UI](https://ui.shadcn.com/)** - 高质量组件库 (基于 Radix UI)
+- **[Lucide React](https://lucide.dev/)** - 精美图标集
+- **[Sonner](https://sonner.emilkowal.ski/)** - 优雅的 Toast 组件
+
+### 3D Visualization
+
+- **[React Three Fiber](https://docs.pmnd.rs/react-three-fiber)** - React 版 Three.js
+- **[@react-three/drei](https://github.com/pmndrs/drei)** - R3F 实用工具集
+- **[Three.js](https://threejs.org/)** - WebGL 3D 渲染引擎
+
+### Backend & Database
+
+- **[Supabase](https://supabase.com/)** - 开源 Firebase 替代方案
+  - **Edge Functions** - 无服务器函数（Deno 运行时）
+  - **PostgreSQL** - 数据缓存存储
+  - **GraphQL API** - GitHub 数据获取
+
+### AI Integration
+
+- **OpenRouter API** - 多模型网关
+- **Gemini 2.5 Flash** - 代码分析 LLM
+
+### State & Data
+
+- **[React Query](https://tanstack.com/query/latest)** - 异步数据管理
+- **[React Router](https://reactrouter.com/)** - 路由管理
+- **[React Hook Form](https://react-hook-form.com/)** + **[Zod](https://zod.dev/)** - 表单与验证
+
+### Visualization
+
+- **[Recharts](https://recharts.org/)** - 基于 React 的图表库
+
+## 🏗 架构概览 (Architecture)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Frontend (Vite + React)               │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  3D Galaxy  │  │  AI Report  │  │  Charts & Stats     │  │
+│  │  (R3F)      │  │  Display    │  │  (Recharts)         │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Supabase Edge Functions                   │
+│  ┌─────────────────────┐  ┌─────────────────────────────┐   │
+│  │  github-data        │  │  analyze-code               │   │
+│  │  ├─ GraphQL API     │  │  ├─ Lovable AI Gateway      │   │
+│  │  ├─ REST Fallback   │  │  └─ Gemini 2.5 Flash        │   │
+│  │  └─ Cache Layer     │  │                             │   │
+│  └─────────────────────┘  └─────────────────────────────┘   │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│  ┌─────────────────────┐  ┌─────────────────────────────┐   │
+│  │  GitHub API         │  │  Supabase PostgreSQL        │   │
+│  │  (GraphQL v4)       │  │  (github_cache table)       │   │
+│  └─────────────────────┘  └─────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**Edit a file directly in GitHub**
+## 🔧 Supabase 配置
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+本项目使用 Supabase 提供后端服务：
 
-**Use GitHub Codespaces**
+### Edge Functions
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| 函数名         | 功能                                 | 端点            |
+| -------------- | ------------------------------------ | --------------- |
+| `github-data`  | 获取 GitHub 用户数据（GraphQL/REST） | `/github-data`  |
+| `analyze-code` | AI 代码分析与技术画像生成            | `/analyze-code` |
 
-## What technologies are used for this project?
+### 数据库表
 
-This project is built with:
+```sql
+-- github_cache: 缓存 GitHub 数据（默认 6 小时 TTL）
+CREATE TABLE github_cache (
+  username TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 环境变量
 
-## How can I deploy this project?
+```bash
+# Supabase
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+# GitHub (用于 Edge Function)
+GITHUB_TOKEN=your_github_token  # 提高 API 速率限制
+GITHUB_CACHE_TTL_HOURS=6        # 缓存时间（可选）
 
-## Can I connect a custom domain to my Lovable project?
+# AI (用于 Edge Function)
+LOVABLE_API_KEY=your_lovable_api_key
 
-Yes, you can!
+# OpenRouter (用于前端备用)
+VITE_OPENROUTER_API_KEY=your_openrouter_key
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## � 快速开始 (Getting Started)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### 1. 环境准备
+
+确保您的环境已安装 Node.js (推荐 v18+) 和 pnpm。
+
+### 2. 安装依赖
+
+```bash
+# 克隆项目
+git clone <YOUR_GIT_URL>
+cd gitfolio-x
+
+# 安装依赖
+pnpm install
+```
+
+### 3. 配置环境变量
+
+```bash
+# 复制环境变量模板
+cp .env.example .env
+
+# 编辑 .env 文件，填入必要的配置
+```
+
+### 4. 启动开发服务器
+
+```bash
+pnpm dev
+```
+
+现在访问 [http://localhost:5173](http://localhost:5173) 即可开始体验。
+
+### 5. 部署 Supabase Functions（可选）
+
+```bash
+# 登录 Supabase CLI
+supabase login
+
+# 链接项目
+supabase link --project-ref <your-project-ref>
+
+# 部署 Edge Functions
+supabase functions deploy github-data
+supabase functions deploy analyze-code
+```
+
+## 📦 部署 (Deployment)
+
+本项目支持部署到所有现代静态托管平台（Vercel, Netlify, Github Pages, ESA Pages 等）。
+
+1. **构建项目**:
+
+   ```bash
+   pnpm build
+   ```
+
+   构建产物将输出到 `dist` 目录。
+
+2. **部署**:
+   - 将 `dist` 目录内容发布到您的静态 Web 服务器即可。
+
+## 📁 项目结构
+
+```
+gitfolio-x/
+├── src/
+│   ├── components/          # React 组件
+│   │   ├── ui/              # Shadcn UI 组件
+│   │   ├── CodeGalaxy.tsx   # 3D 星系核心组件
+│   │   ├── StarField.tsx    # 星空背景
+│   │   ├── SkillsRadar.tsx  # 技能雷达图
+│   │   └── ...
+│   ├── lib/
+│   │   └── ai/              # AI 集成
+│   │       └── openrouter.ts
+│   ├── integrations/        # 第三方集成
+│   │   └── supabase/
+│   ├── pages/               # 页面组件
+│   └── types/               # TypeScript 类型定义
+├── supabase/
+│   ├── functions/
+│   │   ├── github-data/     # GitHub 数据获取
+│   │   └── analyze-code/    # AI 代码分析
+│   └── migrations/          # 数据库迁移
+├── public/                  # 静态资源
+└── ...
+```
+
+## 🤝 贡献说明
+
+欢迎提交 Issue 和 Pull Request 帮助改进项目！提交前请确保通过 lint 和 type check：
+
+```bash
+pnpm lint
+pnpm build
+```
+
+## 📄 参赛声明
+
+本项目承诺所用代码及设计均为原创，并未侵犯任何第三方权益。
+本项目由阿里云 ESA 提供加速、计算和保护。
+
+## 📜 许可证 (License)
+
+MIT License

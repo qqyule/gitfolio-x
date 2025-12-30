@@ -1,5 +1,6 @@
 import 'https://deno.land/x/xhr@0.1.0/mod.ts'
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
@@ -9,6 +10,60 @@ const corsHeaders = {
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
 const GITHUB_REST_URL = 'https://api.github.com'
+const CACHE_TTL_HOURS = 6 // Cache data for 6 hours
+
+// Initialize Supabase client
+function getSupabaseClient() {
+	return createClient(
+		Deno.env.get('SUPABASE_URL') ?? '',
+		Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+	)
+}
+
+// Check cache for user data
+async function getCachedData(username: string): Promise<any | null> {
+	const supabase = getSupabaseClient()
+	const { data, error } = await supabase
+		.from('github_cache')
+		.select('data, updated_at')
+		.eq('username', username.toLowerCase())
+		.maybeSingle()
+
+	if (error || !data) {
+		console.log(`Cache miss for ${username}`)
+		return null
+	}
+
+	// Check if cache is still valid
+	const updatedAt = new Date(data.updated_at)
+	const now = new Date()
+	const hoursDiff = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60)
+
+	if (hoursDiff > CACHE_TTL_HOURS) {
+		console.log(`Cache expired for ${username} (${hoursDiff.toFixed(1)} hours old)`)
+		return null
+	}
+
+	console.log(`Cache hit for ${username} (${hoursDiff.toFixed(1)} hours old)`)
+	return data.data
+}
+
+// Save data to cache
+async function setCachedData(username: string, data: any): Promise<void> {
+	const supabase = getSupabaseClient()
+	const { error } = await supabase
+		.from('github_cache')
+		.upsert(
+			{ username: username.toLowerCase(), data },
+			{ onConflict: 'username' }
+		)
+
+	if (error) {
+		console.error('Failed to cache data:', error)
+	} else {
+		console.log(`Cached data for ${username}`)
+	}
+}
 
 // Retry fetch with exponential backoff for temporary errors
 async function fetchWithRetry(
@@ -129,7 +184,7 @@ serve(async (req) => {
 	}
 
 	try {
-		const { username } = await req.json()
+		const { username, forceRefresh } = await req.json()
 
 		if (!username) {
 			return new Response(JSON.stringify({ error: 'Username is required' }), {
@@ -139,6 +194,17 @@ serve(async (req) => {
 		}
 
 		console.log(`Fetching GitHub data for: ${username}`)
+
+		// Check cache first (unless force refresh)
+		if (!forceRefresh) {
+			const cachedData = await getCachedData(username)
+			if (cachedData) {
+				console.log('Returning cached data')
+				return new Response(JSON.stringify({ ...cachedData, fromCache: true }), {
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				})
+			}
+		}
 
 		// Try GraphQL first (requires token for better rate limits)
 		const githubToken = Deno.env.get('GITHUB_TOKEN')
@@ -399,7 +465,12 @@ serve(async (req) => {
 
 		console.log('Successfully fetched GitHub data')
 
-		return new Response(JSON.stringify(response), {
+		// Cache the response in background (don't await)
+		setCachedData(username, response).catch(err => 
+			console.error('Background cache failed:', err)
+		)
+
+		return new Response(JSON.stringify({ ...response, fromCache: false }), {
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		})
 	} catch (error) {

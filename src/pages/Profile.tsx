@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Sparkles, MapPin, Building, Calendar, Users, Star, GitFork, GitCommit, Share2 } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles, MapPin, Building, Calendar, Users, Star, GitFork, GitCommit, GitPullRequest, Hash, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import StarField from "@/components/StarField";
@@ -382,10 +382,12 @@ const Profile = () => {
                     <div className="text-sm text-muted-foreground">总贡献</div>
                   </div>
                   <div className="text-center p-4 rounded-xl bg-muted/30">
+                    <Hash className="w-6 h-6 text-primary mx-auto mb-2" />
                     <div className="text-2xl font-bold text-foreground">{githubData.contributions.commits}</div>
                     <div className="text-sm text-muted-foreground">Commits</div>
                   </div>
                   <div className="text-center p-4 rounded-xl bg-muted/30">
+                    <GitPullRequest className="w-6 h-6 text-primary mx-auto mb-2" />
                     <div className="text-2xl font-bold text-foreground">{githubData.contributions.pullRequests}</div>
                     <div className="text-sm text-muted-foreground">PRs</div>
                   </div>

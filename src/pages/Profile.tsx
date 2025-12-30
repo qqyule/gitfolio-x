@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Sparkles, MapPin, Building, Calendar, Users, Star, GitFork, GitCommit, GitPullRequest, Hash, Share2 } from "lucide-react";
@@ -27,6 +27,8 @@ const Profile = () => {
   const [statusMessage, setStatusMessage] = useState("正在连接 GitHub API...");
   const [githubData, setGithubData] = useState<GitHubData | null>(null);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
+  const [showShareGuide, setShowShareGuide] = useState(false);
+  const guideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleShareToX = () => {
     const shareUrl = window.location.href;
@@ -79,6 +81,14 @@ const Profile = () => {
         setAnalysis(result);
         setStage("complete");
         toast.success("分析完成！");
+        
+        // Show share guide after analysis complete
+        setTimeout(() => {
+          setShowShareGuide(true);
+          guideTimerRef.current = setTimeout(() => {
+            setShowShareGuide(false);
+          }, 4000);
+        }, 800);
 
       } catch (error) {
         console.error("Analysis error:", error);
@@ -88,6 +98,12 @@ const Profile = () => {
     };
 
     analyze();
+    
+    return () => {
+      if (guideTimerRef.current) {
+        clearTimeout(guideTimerRef.current);
+      }
+    };
   }, [username, navigate]);
 
   if (!username) {
@@ -163,24 +179,33 @@ const Profile = () => {
           <div className="space-y-8 relative">
             {/* Share button - top right */}
             <div className="absolute right-0 -top-2 z-20">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleShareToX}
-                      className="gap-2 bg-card/80 backdrop-blur-sm border-primary/30 hover:bg-primary/10 hover:border-primary"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      分享到 𝕏
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" className="max-w-[200px]">
-                    <p>分享此技术画像到 X</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowShareGuide(false);
+                    handleShareToX();
+                  }}
+                  className="gap-2 bg-card/80 backdrop-blur-sm border-primary/30 hover:bg-primary/10 hover:border-primary"
+                >
+                  <Share2 className="w-4 h-4" />
+                  分享到 𝕏
+                </Button>
+                
+                {/* Share guide tooltip */}
+                {showShareGuide && (
+                  <div 
+                    className="absolute right-0 top-full mt-2 animate-fade-in"
+                    onClick={() => setShowShareGuide(false)}
+                  >
+                    <div className="relative bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm whitespace-nowrap shadow-lg">
+                      <div className="absolute -top-2 right-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-primary" />
+                      点击分享你的技术画像 ✨
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             {/* User header */}
             <header className="glass-card rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "100ms", animationFillMode: "forwards" }}>

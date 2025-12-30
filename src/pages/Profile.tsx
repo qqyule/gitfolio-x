@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Sparkles, MapPin, Building, Calendar, Users, Star, GitFork, GitCommit, GitPullRequest, Hash, Share2 } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles, MapPin, Building, Calendar, Users, Star, GitFork, GitCommit, GitPullRequest, Hash, Share2, Play, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import StarField from "@/components/StarField";
@@ -29,6 +29,7 @@ const Profile = () => {
   const [githubData, setGithubData] = useState<GitHubData | null>(null);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [showShareGuide, setShowShareGuide] = useState(false);
+  const [showGalaxy, setShowGalaxy] = useState(false);
   const guideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleShareToX = () => {
@@ -276,16 +277,41 @@ const Profile = () => {
 
             {/* Code Galaxy Visualization */}
             <section className="glass-card hover-lift rounded-3xl p-8 opacity-0 animate-slide-up" style={{ animationDelay: "200ms", animationFillMode: "forwards" }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-primary" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                    <Globe className="w-5 h-5 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-foreground">代码宇宙</h2>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground">代码宇宙</h2>
+                {!showGalaxy && (
+                  <span className="text-xs text-muted-foreground">点击下方启动 3D 可视化</span>
+                )}
               </div>
-              <p className="text-muted-foreground mb-4">
-                每颗星球代表一个仓库，大小由 Star 数决定，颜色代表主要语言。拖动旋转，滚轮缩放。
-              </p>
-              <CodeGalaxy data={githubData} />
+              
+              {showGalaxy ? (
+                <>
+                  <p className="text-muted-foreground mb-4">
+                    每颗星球代表一个仓库，大小由 Star 数决定，颜色代表主要语言。拖动旋转，滚轮缩放。
+                  </p>
+                  <CodeGalaxy data={githubData} />
+                </>
+              ) : (
+                <button
+                  onClick={() => setShowGalaxy(true)}
+                  className="w-full h-[300px] rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border/50 hover:border-primary/50 transition-all duration-500 flex flex-col items-center justify-center gap-4 group cursor-pointer"
+                >
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Play className="w-8 h-8 text-primary ml-1" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-foreground font-medium mb-1">启动 3D 代码宇宙</p>
+                    <p className="text-sm text-muted-foreground">
+                      探索 {githubData.stats.totalRepos} 个仓库的星系可视化
+                    </p>
+                  </div>
+                </button>
+              )}
             </section>
 
             {/* AI Analysis Section */}

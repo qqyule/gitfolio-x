@@ -19,7 +19,7 @@ const RepoCard = ({ repo, index }: RepoCardProps) => {
       rel="noopener noreferrer"
       className={cn(
         "group relative glass-card rounded-2xl p-5 transition-all duration-500",
-        "hover:scale-105 hover:bg-card/60 opacity-0 animate-slide-up"
+        "hover:scale-[1.03] hover:bg-card/60 opacity-0 animate-slide-up hover-glow"
       )}
       style={{ animationDelay: `${index * 100}ms`, animationFillMode: "forwards" }}
     >

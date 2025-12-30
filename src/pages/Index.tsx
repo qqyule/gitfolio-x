@@ -2,6 +2,7 @@ import StarField from '@/components/StarField'
 import GalaxyOrb from '@/components/GalaxyOrb'
 import GitHubInput from '@/components/GitHubInput'
 import FeatureCard from '@/components/FeatureCard'
+import PlanetBackground from '@/components/PlanetBackground'
 import { Globe, Brain, FileCode, Zap, Shield, Palette } from 'lucide-react'
 import galaxyHero from '@/assets/galaxy-hero.jpg'
 import showcase1 from '@/assets/showcase-1.jpg'
@@ -23,6 +24,7 @@ const Index = () => {
 			/>
 			<div className="fixed inset-0 z-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
 			<StarField />
+			<PlanetBackground />
 
 			{/* Main content */}
 			<main className="relative z-10">

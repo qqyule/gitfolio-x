@@ -4,6 +4,9 @@ import GitHubInput from "@/components/GitHubInput";
 import FeatureCard from "@/components/FeatureCard";
 import { Globe, Brain, FileCode, Zap, Shield, Palette } from "lucide-react";
 import galaxyHero from "@/assets/galaxy-hero.jpg";
+import showcase1 from "@/assets/showcase-1.jpg";
+import showcase2 from "@/assets/showcase-2.jpg";
+import showcase3 from "@/assets/showcase-3.jpg";
 
 const Index = () => {
   return (
@@ -135,38 +138,44 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Tech Stack Section */}
+        {/* Showcase Section */}
         <section className="relative py-24 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              <span className="text-foreground">技术架构</span>
-            </h2>
-            
-            <div className="flex flex-wrap justify-center gap-3 mb-12">
-              {[
-                "React 19",
-                "Next.js 15",
-                "React Three Fiber",
-                "WebGPU",
-                "GraphQL",
-                "Vercel AI SDK",
-                "Tailwind CSS",
-                "TypeScript",
-              ].map((tech, i) => (
-                <span
-                  key={tech}
-                  className="px-4 py-2 rounded-full glass-card text-sm text-muted-foreground hover:text-primary hover:border-primary/50 transition-all duration-300 cursor-default opacity-0 animate-fade-in"
-                  style={{ animationDelay: `${i * 100 + 100}ms` }}
-                >
-                  {tech}
-                </span>
-              ))}
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                <span className="text-foreground">代码宇宙展示</span>
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                看看技术大神们的代码星系是如何呈现的
+              </p>
             </div>
 
-            <p className="text-muted-foreground/80 max-w-2xl mx-auto">
-              使用 2025 年最前沿的全栈技术，展示您对现代 React 架构、
-              3D 图形渲染和 AI Native 开发模式的深刻理解。
-            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { img: showcase1, name: "Linus Torvalds", desc: "Linux 内核之父" },
+                { img: showcase2, name: "Evan You", desc: "Vue.js 创始人" },
+                { img: showcase3, name: "Dan Abramov", desc: "React 核心团队" },
+              ].map((item, i) => (
+                <div
+                  key={item.name}
+                  className="group relative overflow-hidden rounded-xl glass-card border border-border/30 hover:border-primary/50 transition-all duration-500 opacity-0 animate-fade-in"
+                  style={{ animationDelay: `${i * 150 + 100}ms` }}
+                >
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={item.img}
+                      alt={`${item.name} 的代码宇宙`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-lg font-semibold text-foreground">{item.name}</h3>
+                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

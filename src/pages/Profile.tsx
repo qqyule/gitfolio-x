@@ -30,10 +30,11 @@ const Profile = () => {
 
   const handleShareToX = () => {
     const shareUrl = window.location.href;
-    const shareText = `我刚刚用 AI 分析了 @${username} 的 GitHub 代码宇宙！来看看这份技术画像 🚀`;
+    const displayName = githubData?.user?.name || username;
+    const shareText = `我刚刚用 AI 分析了 ${displayName} 的 GitHub 代码宇宙！来看看这份技术画像 🚀`;
     const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     
-    window.open(xUrl, "_blank", "width=600,height=400");
+    window.open(xUrl, "_blank", "width=700,height=500");
     toast.success("正在打开 X 分享页面...");
   };
 

@@ -1,41 +1,35 @@
-import { useState, useEffect, useRef } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
+import { PDFDownloadLink } from '@react-pdf/renderer'
 import {
 	ArrowLeft,
-	Loader2,
-	Sparkles,
-	MapPin,
 	Building,
 	Calendar,
-	Users,
-	Star,
-	GitFork,
 	GitCommit,
+	GitFork,
 	GitPullRequest,
-	Hash,
-	Share2,
-	Play,
 	Globe,
+	Hash,
+	Loader2,
+	MapPin,
+	Play,
+	Share2,
+	Sparkles,
+	Star,
+	Users,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { SEO } from '@/components/SEO'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
-import StarField from '@/components/StarField'
-import SkillsRadar from '@/components/SkillsRadar'
-import LanguageChart from '@/components/LanguageChart'
-import RepoCard from '@/components/RepoCard'
-import CodeGalaxy from '@/components/CodeGalaxy'
-import { fetchGitHubData, analyzeCode } from '@/lib/github'
-import type { GitHubData, AIAnalysis } from '@/types/github'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { toast } from 'sonner'
 import galaxyHero from '@/assets/galaxy-hero.jpg'
-import { PDFDownloadLink } from '@react-pdf/renderer'
+import CodeGalaxy from '@/components/CodeGalaxy'
+import LanguageChart from '@/components/LanguageChart'
 import ProfilePdfDocument from '@/components/ProfilePdfDocument'
+import RepoCard from '@/components/RepoCard'
+import { SEO } from '@/components/SEO'
+import SkillsRadar from '@/components/SkillsRadar'
+import StarField from '@/components/StarField'
+import { Button } from '@/components/ui/button'
+import { analyzeCode, fetchGitHubData } from '@/lib/github'
+import type { AIAnalysis, GitHubData } from '@/types/github'
 
 type AnalysisStage = 'fetching' | 'analyzing' | 'complete' | 'error'
 
@@ -49,9 +43,7 @@ const Profile = () => {
 	const [githubData, setGithubData] = useState<GitHubData | null>(null)
 	const [analysis, setAnalysis] = useState<AIAnalysis | null>(null)
 	const [showShareGuide, setShowShareGuide] = useState(false)
-	const [galaxyState, setGalaxyState] = useState<'idle' | 'loading' | 'ready'>(
-		'idle'
-	)
+	const [galaxyState, setGalaxyState] = useState<'idle' | 'loading' | 'ready'>('idle')
 	const guideTimerRef = useRef<NodeJS.Timeout | null>(null)
 
 	const handleShareToX = () => {
@@ -76,11 +68,7 @@ const Profile = () => {
 			try {
 				// Stage 1: Fetch GitHub data
 				setStage('fetching')
-				const stages = [
-					'正在连接 GitHub API...',
-					'正在获取仓库信息...',
-					'正在解析代码结构...',
-				]
+				const stages = ['正在连接 GitHub API...', '正在获取仓库信息...', '正在解析代码结构...']
 
 				for (const msg of stages) {
 					setStatusMessage(msg)
@@ -142,12 +130,11 @@ const Profile = () => {
 					githubData?.user
 						? `${githubData.user.name || githubData.user.login} (@${
 								githubData.user.login
-						  }) - AI 技术画像`
+							}) - AI 技术画像`
 						: `${username ? `@${username} ` : ''}代码宇宙分析中...`
 				}
 				description={
-					analysis?.summary ||
-					`查看 ${username} 的 GitHub 3D 可视化简历与 AI 技术分析报告。`
+					analysis?.summary || `查看 ${username} 的 GitHub 3D 可视化简历与 AI 技术分析报告。`
 				}
 				image={githubData?.user?.avatarUrl}
 				type="profile"
@@ -167,7 +154,7 @@ const Profile = () => {
 										githubData.user.blog,
 									].filter(Boolean),
 								},
-						  }
+							}
 						: undefined
 				}
 			/>
@@ -206,12 +193,8 @@ const Profile = () => {
 								<Loader2 className="w-8 h-8 text-primary-foreground animate-spin" />
 							</div>
 						</div>
-						<p className="text-xl text-foreground font-medium mb-2">
-							分析 @{username} 的代码宇宙
-						</p>
-						<p className="text-muted-foreground animate-pulse">
-							{statusMessage}
-						</p>
+						<p className="text-xl text-foreground font-medium mb-2">分析 @{username} 的代码宇宙</p>
+						<p className="text-muted-foreground animate-pulse">{statusMessage}</p>
 					</div>
 				)}
 
@@ -222,9 +205,7 @@ const Profile = () => {
 							<div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-4">
 								<span className="text-3xl">😔</span>
 							</div>
-							<h2 className="text-xl font-semibold text-foreground mb-2">
-								分析失败
-							</h2>
+							<h2 className="text-xl font-semibold text-foreground mb-2">分析失败</h2>
 							<p className="text-muted-foreground mb-6">
 								无法获取 @{username} 的 GitHub 数据，请检查用户名是否正确。
 							</p>
@@ -269,9 +250,7 @@ const Profile = () => {
 							</div>
 
 							<PDFDownloadLink
-								document={
-									<ProfilePdfDocument data={githubData} analysis={analysis} />
-								}
+								document={<ProfilePdfDocument data={githubData} analysis={analysis} />}
 								fileName={`gitfolio-${username}.pdf`}
 								className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border h-9 px-3 bg-card/80 backdrop-blur-sm border-primary/30 hover:bg-primary/10 hover:border-primary hover:text-primary ml-2"
 							>
@@ -338,13 +317,10 @@ const Profile = () => {
 										<span className="flex items-center gap-1">
 											<Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
 											<span className="hidden sm:inline">加入于</span>{' '}
-											{new Date(githubData.user.createdAt).toLocaleDateString(
-												'zh-CN'
-											)}
+											{new Date(githubData.user.createdAt).toLocaleDateString('zh-CN')}
 										</span>
 										<span className="flex items-center gap-1">
-											<Users className="w-3 h-3 sm:w-4 sm:h-4" />{' '}
-											{githubData.user.followers}{' '}
+											<Users className="w-3 h-3 sm:w-4 sm:h-4" /> {githubData.user.followers}{' '}
 											<span className="hidden sm:inline">关注者</span>
 										</span>
 									</div>
@@ -356,27 +332,20 @@ const Profile = () => {
 										<div className="text-xl sm:text-2xl font-bold text-foreground">
 											{githubData.stats.totalRepos}
 										</div>
-										<div className="text-xs sm:text-sm text-muted-foreground">
-											仓库
-										</div>
+										<div className="text-xs sm:text-sm text-muted-foreground">仓库</div>
 									</div>
 									<div>
 										<div className="text-xl sm:text-2xl font-bold text-foreground flex items-center justify-center gap-1">
 											<Star className="w-4 h-4 sm:w-5 sm:h-5 text-star-bright" />{' '}
 											{githubData.stats.totalStars}
 										</div>
-										<div className="text-xs sm:text-sm text-muted-foreground">
-											Star
-										</div>
+										<div className="text-xs sm:text-sm text-muted-foreground">Star</div>
 									</div>
 									<div>
 										<div className="text-xl sm:text-2xl font-bold text-foreground flex items-center justify-center gap-1">
-											<GitFork className="w-4 h-4 sm:w-5 sm:h-5" />{' '}
-											{githubData.stats.totalForks}
+											<GitFork className="w-4 h-4 sm:w-5 sm:h-5" /> {githubData.stats.totalForks}
 										</div>
-										<div className="text-xs sm:text-sm text-muted-foreground">
-											Fork
-										</div>
+										<div className="text-xs sm:text-sm text-muted-foreground">Fork</div>
 									</div>
 								</div>
 							</div>
@@ -392,14 +361,10 @@ const Profile = () => {
 									<div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
 										<Globe className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
 									</div>
-									<h2 className="text-xl sm:text-2xl font-bold text-foreground">
-										代码宇宙
-									</h2>
+									<h2 className="text-xl sm:text-2xl font-bold text-foreground">代码宇宙</h2>
 								</div>
 								{galaxyState === 'idle' && (
-									<span className="text-xs text-muted-foreground">
-										点击下方启动 3D 可视化
-									</span>
+									<span className="text-xs text-muted-foreground">点击下方启动 3D 可视化</span>
 								)}
 							</div>
 
@@ -407,13 +372,10 @@ const Profile = () => {
 								<div className="animate-fade-in relative">
 									<p className="text-muted-foreground text-sm sm:text-base mb-3 sm:mb-4">
 										<span className="hidden sm:inline">
-											每颗星球代表一个仓库，大小由 Star
-											数决定，颜色代表主要语言。
+											每颗星球代表一个仓库，大小由 Star 数决定，颜色代表主要语言。
 										</span>
 										<span className="sm:hidden">点击星球查看详情</span>
-										<span className="hidden sm:inline">
-											拖动旋转，滚轮缩放。
-										</span>
+										<span className="hidden sm:inline">拖动旋转，滚轮缩放。</span>
 									</p>
 									<CodeGalaxy data={githubData} />
 								</div>
@@ -462,6 +424,7 @@ const Profile = () => {
 								</div>
 							) : (
 								<button
+									type="button"
 									onClick={() => {
 										setGalaxyState('loading')
 										setTimeout(() => setGalaxyState('ready'), 2000)
@@ -492,9 +455,7 @@ const Profile = () => {
 								<div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
 									<Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
 								</div>
-								<h2 className="text-xl sm:text-2xl font-bold text-foreground">
-									AI 技术画像
-								</h2>
+								<h2 className="text-xl sm:text-2xl font-bold text-foreground">AI 技术画像</h2>
 							</div>
 
 							<div className="grid lg:grid-cols-2 gap-6 md:gap-8">
@@ -532,9 +493,7 @@ const Profile = () => {
 
 									{/* Personality */}
 									<div className="p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20">
-										<p className="text-xs sm:text-sm text-muted-foreground mb-1">
-											开发者性格
-										</p>
+										<p className="text-xs sm:text-sm text-muted-foreground mb-1">开发者性格</p>
 										<p className="text-foreground font-medium text-sm sm:text-base">
 											{analysis.personality}
 										</p>
@@ -547,10 +506,7 @@ const Profile = () => {
 										</h3>
 										<ul className="space-y-1.5 sm:space-y-2">
 											{analysis.insights.map((insight, i) => (
-												<li
-													key={i}
-													className="text-muted-foreground text-sm sm:text-base"
-												>
+												<li key={i} className="text-muted-foreground text-sm sm:text-base">
 													{insight}
 												</li>
 											))}
@@ -567,9 +523,7 @@ const Profile = () => {
 
 									{/* Expertise tags */}
 									<div className="mt-4 sm:mt-6">
-										<h4 className="text-xs sm:text-sm text-muted-foreground mb-2">
-											专长领域
-										</h4>
+										<h4 className="text-xs sm:text-sm text-muted-foreground mb-2">专长领域</h4>
 										<div className="flex flex-wrap gap-1.5 sm:gap-2">
 											{analysis.techProfile.expertise.map((skill) => (
 												<span
@@ -618,27 +572,21 @@ const Profile = () => {
 										<div className="text-lg sm:text-2xl font-bold text-foreground">
 											{githubData.contributions.total}
 										</div>
-										<div className="text-xs sm:text-sm text-muted-foreground">
-											总贡献
-										</div>
+										<div className="text-xs sm:text-sm text-muted-foreground">总贡献</div>
 									</div>
 									<div className="text-center p-2 sm:p-4 rounded-xl bg-muted/30 hover-glow transition-all duration-300 cursor-default">
 										<Hash className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
 										<div className="text-lg sm:text-2xl font-bold text-foreground">
 											{githubData.contributions.commits}
 										</div>
-										<div className="text-xs sm:text-sm text-muted-foreground">
-											Commits
-										</div>
+										<div className="text-xs sm:text-sm text-muted-foreground">Commits</div>
 									</div>
 									<div className="text-center p-2 sm:p-4 rounded-xl bg-muted/30 hover-glow transition-all duration-300 cursor-default">
 										<GitPullRequest className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
 										<div className="text-lg sm:text-2xl font-bold text-foreground">
 											{githubData.contributions.pullRequests}
 										</div>
-										<div className="text-xs sm:text-sm text-muted-foreground">
-											PRs
-										</div>
+										<div className="text-xs sm:text-sm text-muted-foreground">PRs</div>
 									</div>
 								</div>
 

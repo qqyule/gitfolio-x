@@ -2,7 +2,7 @@
  * cn 工具函数测试
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { cn } from './utils'
 
 describe('cn', () => {
@@ -35,8 +35,6 @@ describe('cn', () => {
 	})
 
 	it('应处理复杂嵌套输入', () => {
-		expect(cn('base', ['foo', { bar: true }], { baz: true, qux: false })).toBe(
-			'base foo bar baz'
-		)
+		expect(cn('base', ['foo', { bar: true }], { baz: true, qux: false })).toBe('base foo bar baz')
 	})
 })

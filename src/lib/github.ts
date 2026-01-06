@@ -9,7 +9,7 @@ export {
 	setAIConfig,
 	switchAIProvider,
 } from './ai'
-export type { AIProvider, AIConfig, OpenRouterModel } from './ai/config'
+export type { AIConfig, AIProvider, OpenRouterModel } from './ai/config'
 
 /**
  * 获取 GitHub 用户数据

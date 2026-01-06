@@ -2,8 +2,8 @@
  * RepoCard 组件测试
  */
 
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
 import type { Repository } from '@/types/github'
 import RepoCard from './RepoCard'
 

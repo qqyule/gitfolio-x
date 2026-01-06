@@ -1,13 +1,5 @@
-import {
-	Document,
-	Page,
-	Text,
-	View,
-	StyleSheet,
-	Image,
-	Font,
-} from '@react-pdf/renderer'
-import type { GitHubData, AIAnalysis } from '@/types/github'
+import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
+import type { AIAnalysis, GitHubData } from '@/types/github'
 
 // 注册字体以支持中文
 Font.register({
@@ -193,27 +185,17 @@ const ProfilePdfDocument = ({ data, analysis }: ProfilePdfProps) => {
 			<Page size="A4" style={styles.page}>
 				{/* Header Section */}
 				<View style={styles.header}>
-					{data.user.avatarUrl && (
-						<Image src={data.user.avatarUrl} style={styles.avatar} />
-					)}
+					{data.user.avatarUrl && <Image src={data.user.avatarUrl} style={styles.avatar} />}
 					<View style={styles.headerInfo}>
 						<Text style={styles.name}>{data.user.name || data.user.login}</Text>
 						<Text style={styles.login}>@{data.user.login}</Text>
 						{data.user.bio && <Text style={styles.bio}>{data.user.bio}</Text>}
 
 						<View style={styles.statsRow}>
-							<Text style={styles.statItem}>
-								Repos: {data.stats.totalRepos}
-							</Text>
-							<Text style={styles.statItem}>
-								Stars: {data.stats.totalStars}
-							</Text>
-							<Text style={styles.statItem}>
-								Forks: {data.stats.totalForks}
-							</Text>
-							<Text style={styles.statItem}>
-								Followers: {data.user.followers}
-							</Text>
+							<Text style={styles.statItem}>Repos: {data.stats.totalRepos}</Text>
+							<Text style={styles.statItem}>Stars: {data.stats.totalStars}</Text>
+							<Text style={styles.statItem}>Forks: {data.stats.totalForks}</Text>
+							<Text style={styles.statItem}>Followers: {data.user.followers}</Text>
 						</View>
 					</View>
 				</View>
@@ -225,9 +207,7 @@ const ProfilePdfDocument = ({ data, analysis }: ProfilePdfProps) => {
 					<Text style={{ ...styles.text, marginTop: 5 }}>
 						角色定位: {analysis.techProfile.primaryRole}
 					</Text>
-					<Text style={{ ...styles.text, marginTop: 5 }}>
-						开发者性格: {analysis.personality}
-					</Text>
+					<Text style={{ ...styles.text, marginTop: 5 }}>开发者性格: {analysis.personality}</Text>
 				</View>
 
 				<View style={styles.gridTwoCol} wrap={false}>
@@ -264,10 +244,7 @@ const ProfilePdfDocument = ({ data, analysis }: ProfilePdfProps) => {
 						<View style={styles.column}>
 							<SkillBar label="算法能力" value={analysis.skills.algorithms} />
 							<SkillBar label="架构设计" value={analysis.skills.architecture} />
-							<SkillBar
-								label="文档规范"
-								value={analysis.skills.documentation}
-							/>
+							<SkillBar label="文档规范" value={analysis.skills.documentation} />
 						</View>
 					</View>
 				</View>
@@ -294,17 +271,14 @@ const ProfilePdfDocument = ({ data, analysis }: ProfilePdfProps) => {
 								<Text style={styles.repoDesc}>
 									{repo.description
 										? repo.description.length > 40
-											? repo.description.substring(0, 40) + '...'
+											? `${repo.description.substring(0, 40)}...`
 											: repo.description
 										: 'No description'}
 								</Text>
 								<View style={styles.repoMeta}>
-									<Text style={{ marginRight: 10 }}>
-										⭐ {repo.stargazerCount}
-									</Text>
+									<Text style={{ marginRight: 10 }}>⭐ {repo.stargazerCount}</Text>
 									<Text style={{ flexDirection: 'row', alignItems: 'center' }}>
-										<Text style={{ fontSize: 8 }}>●</Text>{' '}
-										{repo.primaryLanguage?.name}
+										<Text style={{ fontSize: 8 }}>●</Text> {repo.primaryLanguage?.name}
 									</Text>
 								</View>
 							</View>

@@ -1,15 +1,10 @@
+import { ArrowRight, Github, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { Github, Sparkles, ArrowRight } from 'lucide-react'
-import { toast } from 'sonner'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const GitHubInput = () => {
 	const [username, setUsername] = useState('')
@@ -116,9 +111,7 @@ const GitHubInput = () => {
 									onClick={() => setUsername(user.handle)}
 									className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm bg-primary/10 hover:bg-primary/20 border border-primary/30 hover:border-primary/50 transition-all duration-300"
 								>
-									<span className="text-primary font-medium">
-										@{user.handle}
-									</span>
+									<span className="text-primary font-medium">@{user.handle}</span>
 									<span className="text-muted-foreground">{user.name}</span>
 								</button>
 							</TooltipTrigger>

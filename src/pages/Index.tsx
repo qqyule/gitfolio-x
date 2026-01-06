@@ -1,14 +1,14 @@
-import StarField from '@/components/StarField'
-import GalaxyOrb from '@/components/GalaxyOrb'
-import GitHubInput from '@/components/GitHubInput'
-import FeatureCard from '@/components/FeatureCard'
-import PlanetBackground from '@/components/PlanetBackground'
-import { SEO } from '@/components/SEO'
-import { Globe, Brain, FileCode, Zap, Shield, Palette } from 'lucide-react'
+import { Brain, FileCode, Globe, Palette, Shield, Zap } from 'lucide-react'
 import galaxyHero from '@/assets/galaxy-hero.jpg'
 import showcase1 from '@/assets/showcase-1.jpg'
 import showcase2 from '@/assets/showcase-2.jpg'
 import showcase3 from '@/assets/showcase-3.jpg'
+import FeatureCard from '@/components/FeatureCard'
+import GalaxyOrb from '@/components/GalaxyOrb'
+import GitHubInput from '@/components/GitHubInput'
+import PlanetBackground from '@/components/PlanetBackground'
+import { SEO } from '@/components/SEO'
+import StarField from '@/components/StarField'
 
 const Index = () => {
 	return (
@@ -39,9 +39,7 @@ const Index = () => {
 							style={{ animationDelay: '100ms' }}
 						>
 							<Zap className="w-4 h-4 text-primary" />
-							<span className="text-sm text-muted-foreground">
-								Powered by AI & React 19 RSC
-							</span>
+							<span className="text-sm text-muted-foreground">Powered by AI & React 19 RSC</span>
 						</div>
 
 						{/* Main title */}
@@ -69,18 +67,12 @@ const Index = () => {
 						</p>
 
 						{/* Galaxy Orb Animation */}
-						<div
-							className="mb-12 opacity-0 animate-fade-in"
-							style={{ animationDelay: '500ms' }}
-						>
+						<div className="mb-12 opacity-0 animate-fade-in" style={{ animationDelay: '500ms' }}>
 							<GalaxyOrb />
 						</div>
 
 						{/* GitHub Input */}
-						<div
-							className="opacity-0 animate-fade-in"
-							style={{ animationDelay: '600ms' }}
-						>
+						<div className="opacity-0 animate-fade-in" style={{ animationDelay: '600ms' }}>
 							<GitHubInput />
 						</div>
 					</div>
@@ -204,10 +196,8 @@ const Index = () => {
 				<footer className="relative py-12 px-4 border-t border-border/30">
 					<div className="max-w-4xl mx-auto text-center">
 						<p className="text-muted-foreground text-sm">
-							<span className="text-gradient-cosmic font-semibold">
-								GitFolio X
-							</span>{' '}
-							— 让代码讲述您的故事
+							<span className="text-gradient-cosmic font-semibold">GitFolio X</span> —
+							让代码讲述您的故事
 						</p>
 						<div className="flex items-center justify-center gap-4 mt-3">
 							<a
@@ -217,14 +207,10 @@ const Index = () => {
 								className="text-muted-foreground/60 hover:text-primary transition-colors duration-300"
 								aria-label="关注我的 X (Twitter)"
 							>
-								<svg
-									className="w-5 h-5"
-									viewBox="0 0 24 24"
-									fill="currentColor"
-									aria-hidden="true"
-								>
+								<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 									<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
 								</svg>
+								<span className="sr-only">关注我的 X (Twitter)</span>
 							</a>
 						</div>
 					</div>

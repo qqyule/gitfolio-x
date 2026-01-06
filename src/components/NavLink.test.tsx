@@ -2,18 +2,16 @@
  * NavLink 组件测试
  */
 
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { describe, expect, it } from 'vitest'
 import { NavLink } from './NavLink'
 
 /**
  * 包装组件以提供路由上下文
  */
 const renderWithRouter = (ui: React.ReactElement, initialEntries = ['/']) => {
-	return render(
-		<MemoryRouter initialEntries={initialEntries}>{ui}</MemoryRouter>
-	)
+	return render(<MemoryRouter initialEntries={initialEntries}>{ui}</MemoryRouter>)
 }
 
 describe('NavLink', () => {

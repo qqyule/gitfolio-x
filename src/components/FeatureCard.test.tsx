@@ -2,8 +2,8 @@
  * FeatureCard 组件测试
  */
 
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
 import FeatureCard from './FeatureCard'
 
 describe('FeatureCard', () => {
@@ -27,9 +27,7 @@ describe('FeatureCard', () => {
 	})
 
 	it('应应用自定义 className', () => {
-		const { container } = render(
-			<FeatureCard {...defaultProps} className="custom-class" />
-		)
+		const { container } = render(<FeatureCard {...defaultProps} className="custom-class" />)
 
 		expect(container.firstChild).toHaveClass('custom-class')
 	})

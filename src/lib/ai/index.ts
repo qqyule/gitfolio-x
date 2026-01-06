@@ -3,9 +3,9 @@
  * 根据配置自动选择 AI 提供商
  */
 
-import type { GitHubData, AIAnalysis } from '@/types/github'
 import { supabase } from '@/integrations/supabase/client'
-import { getAIConfig, type AIProvider } from './config'
+import type { AIAnalysis, GitHubData } from '@/types/github'
+import { type AIProvider, getAIConfig } from './config'
 import { analyzeCodeWithOpenRouter } from './openrouter'
 
 // 导出配置相关
@@ -16,9 +16,7 @@ export * from './config'
  * @param githubData GitHub 数据
  * @returns AI 分析结果
  */
-const analyzeCodeWithSupabase = async (
-	githubData: GitHubData
-): Promise<AIAnalysis> => {
+const analyzeCodeWithSupabase = async (githubData: GitHubData): Promise<AIAnalysis> => {
 	const { data, error } = await supabase.functions.invoke('analyze-code', {
 		body: { githubData },
 	})
@@ -35,10 +33,7 @@ const analyzeCodeWithSupabase = async (
 }
 
 /** 提供商分析函数映射 */
-const providerHandlers: Record<
-	AIProvider,
-	(githubData: GitHubData) => Promise<AIAnalysis>
-> = {
+const providerHandlers: Record<AIProvider, (githubData: GitHubData) => Promise<AIAnalysis>> = {
 	supabase: analyzeCodeWithSupabase,
 	openrouter: analyzeCodeWithOpenRouter,
 }
@@ -49,9 +44,7 @@ const providerHandlers: Record<
  * @param githubData GitHub 数据
  * @returns AI 分析结果
  */
-export const analyzeCode = async (
-	githubData: GitHubData
-): Promise<AIAnalysis> => {
+export const analyzeCode = async (githubData: GitHubData): Promise<AIAnalysis> => {
 	const config = getAIConfig()
 	const handler = providerHandlers[config.provider]
 

@@ -35,8 +35,7 @@ const defaultConfig: AIConfig = {
 	openrouter: {
 		apiKey: import.meta.env.VITE_OPENROUTER_API_KEY || '',
 		model:
-			(import.meta.env.VITE_OPENROUTER_MODEL as OpenRouterModel) ||
-			'google/gemini-2.0-flash-001',
+			(import.meta.env.VITE_OPENROUTER_MODEL as OpenRouterModel) || 'google/gemini-2.0-flash-001',
 		baseUrl: 'https://openrouter.ai/api/v1',
 	},
 }

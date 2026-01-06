@@ -3,8 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
-	'Access-Control-Allow-Headers':
-		'authorization, x-client-info, apikey, content-type',
+	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 const LOVABLE_AI_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions'
@@ -18,13 +17,10 @@ serve(async (req) => {
 		const { githubData } = await req.json()
 
 		if (!githubData) {
-			return new Response(
-				JSON.stringify({ error: 'GitHub data is required' }),
-				{
-					status: 400,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-				}
-			)
+			return new Response(JSON.stringify({ error: 'GitHub data is required' }), {
+				status: 400,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			})
 		}
 
 		const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
@@ -49,9 +45,7 @@ serve(async (req) => {
 				language: repo.language,
 				stars: repo.stars,
 				commitCount: repo.commitCount,
-				recentCommits: repo.recentCommits
-					?.slice(0, 5)
-					.map((c: any) => c.message),
+				recentCommits: repo.recentCommits?.slice(0, 5).map((c: any) => c.message),
 			})),
 		}
 
@@ -123,8 +117,7 @@ ${JSON.stringify(analysisContext, null, 2)}
 								type: 'function',
 								function: {
 									name: 'generate_tech_profile',
-									description:
-										'Generate a structured technical profile analysis',
+									description: 'Generate a structured technical profile analysis',
 									parameters: {
 										type: 'object',
 										properties: {
@@ -222,11 +215,7 @@ ${JSON.stringify(analysisContext, null, 2)}
 				if (response.ok) break
 
 				// Don't retry client errors that are unlikely to succeed on retry (except 429)
-				if (
-					response.status === 400 ||
-					response.status === 401 ||
-					response.status === 402
-				) {
+				if (response.status === 400 || response.status === 401 || response.status === 402) {
 					break
 				}
 
@@ -237,7 +226,7 @@ ${JSON.stringify(analysisContext, null, 2)}
 			}
 
 			if (i < MAX_RETRIES - 1) {
-				const delay = 1000 * Math.pow(2, i)
+				const delay = 1000 * 2 ** i
 				await new Promise((resolve) => setTimeout(resolve, delay))
 			}
 		}
@@ -251,22 +240,16 @@ ${JSON.stringify(analysisContext, null, 2)}
 			console.error('Lovable AI error:', response.status, errorText)
 
 			if (response.status === 429) {
-				return new Response(
-					JSON.stringify({ error: '请求过于频繁，请稍后再试' }),
-					{
-						status: 429,
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-					}
-				)
+				return new Response(JSON.stringify({ error: '请求过于频繁，请稍后再试' }), {
+					status: 429,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				})
 			}
 			if (response.status === 402) {
-				return new Response(
-					JSON.stringify({ error: 'AI 配额已用尽，请添加额度' }),
-					{
-						status: 402,
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-					}
-				)
+				return new Response(JSON.stringify({ error: 'AI 配额已用尽，请添加额度' }), {
+					status: 402,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				})
 			}
 
 			throw new Error('AI analysis failed')
@@ -305,8 +288,7 @@ ${JSON.stringify(analysisContext, null, 2)}
 		})
 	} catch (error) {
 		console.error('Error analyzing code:', error)
-		const errorMessage =
-			error instanceof Error ? error.message : 'Failed to analyze code'
+		const errorMessage = error instanceof Error ? error.message : 'Failed to analyze code'
 		return new Response(JSON.stringify({ error: errorMessage }), {
 			status: 500,
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -316,18 +298,10 @@ ${JSON.stringify(analysisContext, null, 2)}
 
 function generateFallbackAnalysis(githubData: any) {
 	const topLang = githubData.languages?.[0]?.name || 'JavaScript'
-	const isMoreFrontend = [
-		'TypeScript',
-		'JavaScript',
-		'Vue',
-		'CSS',
-		'HTML',
-	].includes(topLang)
+	const isMoreFrontend = ['TypeScript', 'JavaScript', 'Vue', 'CSS', 'HTML'].includes(topLang)
 
 	return {
-		summary: `${
-			githubData.user?.name || githubData.user?.login
-		} 是一位活跃的开发者，拥有 ${
+		summary: `${githubData.user?.name || githubData.user?.login} 是一位活跃的开发者，拥有 ${
 			githubData.stats?.totalRepos || 0
 		} 个公开仓库，主要使用 ${topLang} 进行开发。`,
 		highlights: [
@@ -342,9 +316,7 @@ function generateFallbackAnalysis(githubData: any) {
 		],
 		techProfile: {
 			primaryRole: isMoreFrontend ? '前端开发工程师' : '后端开发工程师',
-			expertise: githubData.languages?.slice(0, 3).map((l: any) => l.name) || [
-				'JavaScript',
-			],
+			expertise: githubData.languages?.slice(0, 3).map((l: any) => l.name) || ['JavaScript'],
 			style: '追求代码质量',
 		},
 		skills: {
@@ -359,10 +331,7 @@ function generateFallbackAnalysis(githubData: any) {
 			`最活跃的项目是 ${githubData.repositories?.[0]?.name || '未知'}`,
 			`偏好使用 ${topLang} 技术栈`,
 		],
-		recommendations: [
-			'可以尝试为项目添加更详细的文档',
-			'考虑参与更多开源社区贡献',
-		],
+		recommendations: ['可以尝试为项目添加更详细的文档', '考虑参与更多开源社区贡献'],
 		personality: '热爱编程的技术探索者',
 	}
 }

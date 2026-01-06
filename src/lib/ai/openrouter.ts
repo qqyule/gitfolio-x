@@ -3,7 +3,7 @@
  * 用于调用 Gemini 等大模型进行代码分析
  */
 
-import type { GitHubData, AIAnalysis } from '@/types/github'
+import type { AIAnalysis, GitHubData } from '@/types/github'
 import { getAIConfig } from './config'
 
 /** OpenRouter API 响应类型 */
@@ -28,9 +28,7 @@ interface OpenRouterResponse {
  * @param githubData GitHub 数据
  * @returns 系统提示和用户提示
  */
-const buildAnalysisPrompt = (
-	githubData: GitHubData
-): { system: string; user: string } => {
+const buildAnalysisPrompt = (githubData: GitHubData): { system: string; user: string } => {
 	const system = `你是一位资深的技术招聘专家和代码审查专家。你需要分析开发者的 GitHub 数据，并生成一份专业的技术画像报告。
 
 你的分析应该包含：
@@ -108,41 +106,34 @@ ${githubData.repositories
  * @param githubData GitHub 数据
  * @returns AI 分析结果
  */
-export const analyzeCodeWithOpenRouter = async (
-	githubData: GitHubData
-): Promise<AIAnalysis> => {
+export const analyzeCodeWithOpenRouter = async (githubData: GitHubData): Promise<AIAnalysis> => {
 	const config = getAIConfig()
 
 	if (!config.openrouter?.apiKey) {
-		throw new Error(
-			'OpenRouter API Key 未配置，请在环境变量中设置 VITE_OPENROUTER_API_KEY'
-		)
+		throw new Error('OpenRouter API Key 未配置，请在环境变量中设置 VITE_OPENROUTER_API_KEY')
 	}
 
 	const { system, user } = buildAnalysisPrompt(githubData)
 
-	const response = await fetch(
-		`${config.openrouter.baseUrl}/chat/completions`,
-		{
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${config.openrouter.apiKey}`,
-				'HTTP-Referer': window.location.origin,
-				'X-Title': 'GitFolio X',
-			},
-			body: JSON.stringify({
-				model: config.openrouter.model,
-				messages: [
-					{ role: 'system', content: system },
-					{ role: 'user', content: user },
-				],
-				temperature: 0.7,
-				max_tokens: 2000,
-				response_format: { type: 'json_object' },
-			}),
-		}
-	)
+	const response = await fetch(`${config.openrouter.baseUrl}/chat/completions`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${config.openrouter.apiKey}`,
+			'HTTP-Referer': window.location.origin,
+			'X-Title': 'GitFolio X',
+		},
+		body: JSON.stringify({
+			model: config.openrouter.model,
+			messages: [
+				{ role: 'system', content: system },
+				{ role: 'user', content: user },
+			],
+			temperature: 0.7,
+			max_tokens: 2000,
+			response_format: { type: 'json_object' },
+		}),
+	})
 
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}))

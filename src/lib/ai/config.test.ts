@@ -2,14 +2,8 @@
  * AI 配置模块测试
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
-import {
-	getAIConfig,
-	setAIConfig,
-	resetAIConfig,
-	switchAIProvider,
-	type AIConfig,
-} from './config'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { getAIConfig, resetAIConfig, setAIConfig, switchAIProvider } from './config'
 
 describe('AI Config', () => {
 	beforeEach(() => {

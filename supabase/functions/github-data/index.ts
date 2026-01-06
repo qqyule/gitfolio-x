@@ -4,8 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
-	'Access-Control-Allow-Headers':
-		'authorization, x-client-info, apikey, content-type',
+	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
@@ -15,8 +14,8 @@ const GITHUB_REST_URL = 'https://api.github.com'
 function getCacheTTLHours(): number {
 	const envValue = Deno.env.get('GITHUB_CACHE_TTL_HOURS')
 	if (envValue) {
-		const parsed = parseInt(envValue, 10)
-		if (!isNaN(parsed) && parsed > 0) {
+		const parsed = Number.parseInt(envValue, 10)
+		if (!Number.isNaN(parsed) && parsed > 0) {
 			return parsed
 		}
 	}
@@ -52,7 +51,9 @@ async function getCachedData(username: string): Promise<any | null> {
 	const cacheTTL = getCacheTTLHours()
 
 	if (hoursDiff > cacheTTL) {
-		console.log(`Cache expired for ${username} (${hoursDiff.toFixed(1)} hours old, TTL: ${cacheTTL}h)`)
+		console.log(
+			`Cache expired for ${username} (${hoursDiff.toFixed(1)} hours old, TTL: ${cacheTTL}h)`
+		)
 		return null
 	}
 
@@ -65,10 +66,7 @@ async function setCachedData(username: string, data: any): Promise<void> {
 	const supabase = getSupabaseClient()
 	const { error } = await supabase
 		.from('github_cache')
-		.upsert(
-			{ username: username.toLowerCase(), data },
-			{ onConflict: 'username' }
-		)
+		.upsert({ username: username.toLowerCase(), data }, { onConflict: 'username' })
 
 	if (error) {
 		console.error('Failed to cache data:', error)
@@ -79,36 +77,36 @@ async function setCachedData(username: string, data: any): Promise<void> {
 
 // Retry fetch with exponential backoff for temporary errors
 async function fetchWithRetry(
-	url: string, 
-	options: RequestInit, 
+	url: string,
+	options: RequestInit,
 	maxRetries = 3
 ): Promise<Response> {
 	let lastError: Error | null = null
-	
+
 	for (let attempt = 0; attempt < maxRetries; attempt++) {
 		try {
 			const response = await fetch(url, options)
-			
+
 			// Retry on 502, 503, 504 (temporary server errors)
 			if ([502, 503, 504].includes(response.status)) {
 				console.log(`Attempt ${attempt + 1}: Got ${response.status}, retrying...`)
 				if (attempt < maxRetries - 1) {
-					await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)))
+					await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt))
 					continue
 				}
 			}
-			
+
 			return response
 		} catch (error) {
 			console.error(`Attempt ${attempt + 1} failed:`, error)
 			lastError = error instanceof Error ? error : new Error(String(error))
-			
+
 			if (attempt < maxRetries - 1) {
-				await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)))
+				await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt))
 			}
 		}
 	}
-	
+
 	throw lastError || new Error('All retry attempts failed')
 }
 
@@ -251,9 +249,7 @@ serve(async (req) => {
 
 			if (graphqlData.errors) {
 				console.error('GraphQL errors:', graphqlData.errors)
-				throw new Error(
-					graphqlData.errors[0]?.message || 'GraphQL query failed'
-				)
+				throw new Error(graphqlData.errors[0]?.message || 'GraphQL query failed')
 			}
 
 			userData = graphqlData.data?.user
@@ -263,7 +259,7 @@ serve(async (req) => {
 
 			// Fetch user profile
 			const userResponse = await fetchWithRetry(`${GITHUB_REST_URL}/users/${username}`, {
-				headers: { 
+				headers: {
 					Accept: 'application/vnd.github.v3+json',
 					'User-Agent': 'GitFolio-App',
 				},
@@ -277,10 +273,13 @@ serve(async (req) => {
 					})
 				}
 				if (userResponse.status === 403) {
-					return new Response(JSON.stringify({ error: 'GitHub API rate limit exceeded. Please try again later.' }), {
-						status: 429,
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-					})
+					return new Response(
+						JSON.stringify({ error: 'GitHub API rate limit exceeded. Please try again later.' }),
+						{
+							status: 429,
+							headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						}
+					)
 				}
 				throw new Error(`GitHub API error: ${userResponse.status}`)
 			}
@@ -298,30 +297,31 @@ serve(async (req) => {
 			// Fetch repos
 			const reposResponse = await fetchWithRetry(
 				`${GITHUB_REST_URL}/users/${username}/repos?sort=updated&per_page=20`,
-				{ 
-					headers: { 
+				{
+					headers: {
 						Accept: 'application/vnd.github.v3+json',
 						'User-Agent': 'GitFolio-App',
-					} 
+					},
 				}
 			)
-			
+
 			if (!reposResponse.ok) {
 				console.error('Failed to fetch repos:', reposResponse.status)
 				// Continue with empty repos rather than failing
 			}
-			
+
 			const reposContentType = reposResponse.headers.get('content-type')
-			const repos = reposResponse.ok && reposContentType?.includes('application/json') 
-				? await reposResponse.json() 
-				: []
+			const repos =
+				reposResponse.ok && reposContentType?.includes('application/json')
+					? await reposResponse.json()
+					: []
 
 			// Fetch languages for each repo (with error handling)
 			const reposWithLanguages = await Promise.all(
 				(Array.isArray(repos) ? repos.slice(0, 10) : []).map(async (repo: any) => {
 					try {
 						const langResponse = await fetchWithRetry(repo.languages_url, {
-							headers: { 
+							headers: {
 								Accept: 'application/vnd.github.v3+json',
 								'User-Agent': 'GitFolio-App',
 							},
@@ -360,12 +360,10 @@ serve(async (req) => {
 							? { name: repo.language, color: getLanguageColor(repo.language) }
 							: null,
 						languages: {
-							edges: Object.entries(repo.languageBreakdown || {}).map(
-								([name, size]) => ({
-									size,
-									node: { name, color: getLanguageColor(name) },
-								})
-							),
+							edges: Object.entries(repo.languageBreakdown || {}).map(([name, size]) => ({
+								size,
+								node: { name, color: getLanguageColor(name) },
+							})),
 						},
 						createdAt: repo.created_at,
 						updatedAt: repo.updated_at,
@@ -411,13 +409,12 @@ serve(async (req) => {
 
 		// Calculate contribution heatmap data
 		const contributionData =
-			userData.contributionsCollection?.contributionCalendar?.weeks?.flatMap(
-				(week: any) =>
-					week.contributionDays.map((day: any) => ({
-						date: day.date,
-						count: day.contributionCount,
-						weekday: day.weekday,
-					}))
+			userData.contributionsCollection?.contributionCalendar?.weeks?.flatMap((week: any) =>
+				week.contributionDays.map((day: any) => ({
+					date: day.date,
+					count: day.contributionCount,
+					weekday: day.weekday,
+				}))
 			) || []
 
 		const response = {
@@ -445,18 +442,13 @@ serve(async (req) => {
 					updatedAt: repo.updatedAt,
 					pushedAt: repo.pushedAt,
 					commitCount: repo.defaultBranchRef?.target?.history?.totalCount || 0,
-					recentCommits:
-						repo.defaultBranchRef?.target?.history?.nodes?.slice(0, 10) || [],
+					recentCommits: repo.defaultBranchRef?.target?.history?.nodes?.slice(0, 10) || [],
 				})) || [],
 			languages: sortedLanguages,
 			contributions: {
-				total:
-					userData.contributionsCollection?.contributionCalendar
-						?.totalContributions || 0,
-				commits:
-					userData.contributionsCollection?.totalCommitContributions || 0,
-				pullRequests:
-					userData.contributionsCollection?.totalPullRequestContributions || 0,
+				total: userData.contributionsCollection?.contributionCalendar?.totalContributions || 0,
+				commits: userData.contributionsCollection?.totalCommitContributions || 0,
+				pullRequests: userData.contributionsCollection?.totalPullRequestContributions || 0,
 				issues: userData.contributionsCollection?.totalIssueContributions || 0,
 				heatmap: contributionData,
 			},
@@ -478,17 +470,14 @@ serve(async (req) => {
 		console.log('Successfully fetched GitHub data')
 
 		// Cache the response in background (don't await)
-		setCachedData(username, response).catch(err => 
-			console.error('Background cache failed:', err)
-		)
+		setCachedData(username, response).catch((err) => console.error('Background cache failed:', err))
 
 		return new Response(JSON.stringify({ ...response, fromCache: false }), {
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		})
 	} catch (error) {
 		console.error('Error fetching GitHub data:', error)
-		const errorMessage =
-			error instanceof Error ? error.message : 'Failed to fetch GitHub data'
+		const errorMessage = error instanceof Error ? error.message : 'Failed to fetch GitHub data'
 		return new Response(JSON.stringify({ error: errorMessage }), {
 			status: 500,
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },

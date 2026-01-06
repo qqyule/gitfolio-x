@@ -2,7 +2,7 @@
  * GitHub 数据获取模块测试
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fetchGitHubData } from './github'
 
 // Mock Supabase client

@@ -2,8 +2,8 @@
  * AI 服务统一入口测试
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { GitHubData, AIAnalysis } from '@/types/github'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { AIAnalysis, GitHubData } from '@/types/github'
 
 // Mock 配置模块
 vi.mock('./config', () => ({
@@ -24,9 +24,9 @@ vi.mock('./openrouter', () => ({
 	analyzeCodeWithOpenRouter: vi.fn(),
 }))
 
+import { getAIConfig } from './config'
 // 在 mock 设置后导入
 import { analyzeCode, analyzeCodeWith } from './index'
-import { getAIConfig } from './config'
 import { analyzeCodeWithOpenRouter } from './openrouter'
 
 describe('AI Service', () => {
@@ -124,9 +124,9 @@ describe('AI Service', () => {
 		})
 
 		it('不支持的 provider 应抛出错误', async () => {
-			await expect(
-				analyzeCodeWith('invalid' as never, mockGitHubData)
-			).rejects.toThrow('不支持的 AI 提供商')
+			await expect(analyzeCodeWith('invalid' as never, mockGitHubData)).rejects.toThrow(
+				'不支持的 AI 提供商'
+			)
 		})
 	})
 })

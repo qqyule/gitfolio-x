@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import trendingRepos from '../data/trending-repos.json'
 
 interface Repo {
@@ -19,8 +20,7 @@ const PlanetBackground: React.FC = () => {
 	const [activeRepos, setActiveRepos] = useState<ActiveRepo[]>([])
 
 	const spawnRepo = useCallback(() => {
-		const randomRepo =
-			trendingRepos[Math.floor(Math.random() * trendingRepos.length)]
+		const randomRepo = trendingRepos[Math.floor(Math.random() * trendingRepos.length)]
 		const id = Date.now() + Math.random()
 
 		// 随机位置 (避免在边缘)

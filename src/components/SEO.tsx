@@ -64,9 +64,7 @@ export const SEO = ({
 			<meta name="twitter:image" content={fullImage} />
 
 			{/* Structured Data (JSON-LD) */}
-			{jsonLd && (
-				<script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-			)}
+			{jsonLd && <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>}
 		</Helmet>
 	)
 }

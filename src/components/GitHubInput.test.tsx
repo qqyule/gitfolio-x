@@ -2,10 +2,10 @@
  * GitHubInput 组件测试
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GitHubInput from './GitHubInput'
 
 // Mock react-router-dom 的 useNavigate
@@ -40,12 +40,8 @@ describe('GitHubInput', () => {
 	it('应正确渲染输入框和按钮', () => {
 		renderWithRouter(<GitHubInput />)
 
-		expect(
-			screen.getByPlaceholderText('输入 GitHub 用户名')
-		).toBeInTheDocument()
-		expect(
-			screen.getByRole('button', { name: /生成宇宙/i })
-		).toBeInTheDocument()
+		expect(screen.getByPlaceholderText('输入 GitHub 用户名')).toBeInTheDocument()
+		expect(screen.getByRole('button', { name: /生成宇宙/i })).toBeInTheDocument()
 	})
 
 	it('应渲染示例用户按钮', () => {
@@ -62,9 +58,7 @@ describe('GitHubInput', () => {
 
 		await user.click(screen.getByText('@torvalds'))
 
-		expect(screen.getByPlaceholderText('输入 GitHub 用户名')).toHaveValue(
-			'torvalds'
-		)
+		expect(screen.getByPlaceholderText('输入 GitHub 用户名')).toHaveValue('torvalds')
 	})
 
 	it('输入用户名应更新输入框值', async () => {

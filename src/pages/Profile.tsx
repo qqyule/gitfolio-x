@@ -28,6 +28,7 @@ import { SEO } from '@/components/SEO'
 import SkillsRadar from '@/components/SkillsRadar'
 import StarField from '@/components/StarField'
 import { Button } from '@/components/ui/button'
+import { getFriendlyErrorMessage } from '@/lib/error-utils'
 import { analyzeCode, fetchGitHubData } from '@/lib/github'
 import type { AIAnalysis, GitHubData } from '@/types/github'
 
@@ -107,7 +108,7 @@ const Profile = () => {
 			} catch (error) {
 				console.error('Analysis error:', error)
 				setStage('error')
-				const msg = error instanceof Error ? error.message : '分析失败'
+				const msg = getFriendlyErrorMessage(error)
 				setErrorMessage(msg)
 				toast.error(msg)
 			}

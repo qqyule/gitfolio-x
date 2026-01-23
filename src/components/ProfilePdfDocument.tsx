@@ -4,7 +4,20 @@ import type { AIAnalysis, GitHubData } from '@/types/github'
 // 注册字体以支持中文
 Font.register({
 	family: 'NotoSansSC',
-	src: 'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5.0.12/files/noto-sans-sc-chinese-simplified-400-normal.woff',
+	fonts: [
+		{
+			src: 'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5.0.12/files/noto-sans-sc-chinese-simplified-400-normal.woff',
+			fontWeight: 400,
+		},
+		{
+			src: 'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5.0.12/files/noto-sans-sc-chinese-simplified-500-normal.woff',
+			fontWeight: 500,
+		},
+		{
+			src: 'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5.0.12/files/noto-sans-sc-chinese-simplified-700-normal.woff',
+			fontWeight: 700,
+		},
+	],
 })
 
 // 为了更好的中文支持，实际项目中通常需要引入中文字体文件
@@ -276,9 +289,9 @@ const ProfilePdfDocument = ({ data, analysis }: ProfilePdfProps) => {
 										: 'No description'}
 								</Text>
 								<View style={styles.repoMeta}>
-									<Text style={{ marginRight: 10 }}>⭐ {repo.stargazerCount}</Text>
+									<Text style={{ marginRight: 10 }}>⭐ {repo.stars}</Text>
 									<Text style={{ flexDirection: 'row', alignItems: 'center' }}>
-										<Text style={{ fontSize: 8 }}>●</Text> {repo.primaryLanguage?.name}
+										<Text style={{ fontSize: 8 }}>●</Text> {repo.language}
 									</Text>
 								</View>
 							</View>

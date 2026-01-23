@@ -120,6 +120,7 @@ query($username: String!) {
     avatarUrl
     location
     company
+    websiteUrl
     createdAt
     followers {
       totalCount
@@ -242,6 +243,13 @@ serve(async (req) => {
 				console.error('GraphQL response is not JSON, status:', graphqlResponse.status)
 				const textResponse = await graphqlResponse.text()
 				console.error('Response preview:', textResponse.substring(0, 200))
+
+				if (graphqlResponse.status >= 500) {
+					throw new Error(
+						'GitHub 服务暂时不可用，请稍后重试 (Status: ' + graphqlResponse.status + ')'
+					)
+				}
+
 				throw new Error(`GitHub API returned non-JSON response (status: ${graphqlResponse.status})`)
 			}
 
@@ -345,6 +353,7 @@ serve(async (req) => {
 				avatarUrl: userProfile.avatar_url,
 				location: userProfile.location,
 				company: userProfile.company,
+				blog: userProfile.blog,
 				createdAt: userProfile.created_at,
 				followers: { totalCount: userProfile.followers },
 				following: { totalCount: userProfile.following },
@@ -425,6 +434,7 @@ serve(async (req) => {
 				avatarUrl: userData.avatarUrl,
 				location: userData.location,
 				company: userData.company,
+				blog: userData.websiteUrl || userData.blog,
 				createdAt: userData.createdAt,
 				followers: userData.followers?.totalCount || 0,
 				following: userData.following?.totalCount || 0,

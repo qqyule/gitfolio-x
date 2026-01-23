@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
 		lineHeight: 1.6,
 		color: '#24292f',
 		marginBottom: 4,
-		textAlign: 'justify',
 	},
 	listItem: {
 		fontSize: 11,
@@ -106,7 +105,6 @@ const styles = StyleSheet.create({
 		color: '#24292f',
 		marginLeft: 8,
 		marginBottom: 4,
-		textAlign: 'justify',
 	},
 	repoGrid: {
 		flexDirection: 'row',
@@ -131,10 +129,11 @@ const styles = StyleSheet.create({
 	repoDesc: {
 		fontSize: 10,
 		color: '#57606a',
-		height: 32,
+		height: 45,
 		marginBottom: 8,
 		lineHeight: 1.4,
 		overflow: 'hidden',
+		textOverflow: 'ellipsis',
 	},
 	repoMeta: {
 		fontSize: 9,
@@ -281,13 +280,7 @@ const ProfilePdfDocument = ({ data, analysis }: ProfilePdfProps) => {
 						{data.repositories.slice(0, 9).map((repo, i) => (
 							<View key={i} style={styles.repoCard}>
 								<Text style={styles.repoName}>{repo.name}</Text>
-								<Text style={styles.repoDesc}>
-									{repo.description
-										? repo.description.length > 40
-											? `${repo.description.substring(0, 40)}...`
-											: repo.description
-										: 'No description'}
-								</Text>
+								<Text style={styles.repoDesc}>{repo.description || 'No description'}</Text>
 								<View style={styles.repoMeta}>
 									<Text style={{ marginRight: 10 }}>⭐ {repo.stars}</Text>
 									<Text style={{ flexDirection: 'row', alignItems: 'center' }}>

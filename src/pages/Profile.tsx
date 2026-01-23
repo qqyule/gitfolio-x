@@ -28,6 +28,7 @@ import { SEO } from '@/components/SEO'
 import SkillsRadar from '@/components/SkillsRadar'
 import StarField from '@/components/StarField'
 import { Button } from '@/components/ui/button'
+import { getFriendlyErrorMessage } from '@/lib/error-utils'
 import { analyzeCode, fetchGitHubData } from '@/lib/github'
 import type { AIAnalysis, GitHubData } from '@/types/github'
 
@@ -40,6 +41,7 @@ const Profile = () => {
 
 	const [stage, setStage] = useState<AnalysisStage>('fetching')
 	const [statusMessage, setStatusMessage] = useState('正在连接 GitHub API...')
+	const [errorMessage, setErrorMessage] = useState('')
 	const [githubData, setGithubData] = useState<GitHubData | null>(null)
 	const [analysis, setAnalysis] = useState<AIAnalysis | null>(null)
 	const [showShareGuide, setShowShareGuide] = useState(false)
@@ -106,7 +108,9 @@ const Profile = () => {
 			} catch (error) {
 				console.error('Analysis error:', error)
 				setStage('error')
-				toast.error(error instanceof Error ? error.message : '分析失败')
+				const msg = getFriendlyErrorMessage(error)
+				setErrorMessage(msg)
+				toast.error(msg)
 			}
 		}
 
@@ -207,7 +211,7 @@ const Profile = () => {
 							</div>
 							<h2 className="text-xl font-semibold text-foreground mb-2">分析失败</h2>
 							<p className="text-muted-foreground mb-6">
-								无法获取 @{username} 的 GitHub 数据，请检查用户名是否正确。
+								{errorMessage || `无法获取 @{username} 的 GitHub 数据，请检查用户名是否正确。`}
 							</p>
 							<Button variant="cosmic" onClick={() => navigate('/')}>
 								返回重试

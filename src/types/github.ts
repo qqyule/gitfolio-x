@@ -5,6 +5,7 @@ export interface GitHubUser {
 	avatarUrl: string
 	location: string | null
 	company: string | null
+	blog: string | null
 	createdAt: string
 	followers: number
 	following: number

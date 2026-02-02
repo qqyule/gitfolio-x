@@ -10,6 +10,21 @@ const corsHeaders = {
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
 const GITHUB_REST_URL = 'https://api.github.com'
 
+// Rate limiting for REST API (no token mode)
+// GitHub allows 60 requests/hour without token
+let lastRestRequestTime = 0
+const REST_API_DELAY_MS = 1500 // ~40 requests per hour, safe margin
+
+// Add delay between REST API requests to avoid rate limiting
+async function delayForRateLimit(): Promise<void> {
+	const now = Date.now()
+	const timeSinceLastRequest = now - lastRestRequestTime
+	if (timeSinceLastRequest < REST_API_DELAY_MS) {
+		await new Promise((resolve) => setTimeout(resolve, REST_API_DELAY_MS - timeSinceLastRequest))
+	}
+	lastRestRequestTime = Date.now()
+}
+
 // Get cache TTL from environment, default to 6 hours
 function getCacheTTLHours(): number {
 	const envValue = Deno.env.get('GITHUB_CACHE_TTL_HOURS')
@@ -265,6 +280,9 @@ serve(async (req) => {
 			// Fallback to REST API (no token needed for public data)
 			console.log('No GitHub token, using REST API')
 
+			// Add delay to avoid rate limiting
+			await delayForRateLimit()
+
 			// Fetch user profile
 			const userResponse = await fetchWithRetry(`${GITHUB_REST_URL}/users/${username}`, {
 				headers: {
@@ -302,6 +320,9 @@ serve(async (req) => {
 
 			const userProfile = await userResponse.json()
 
+			// Add delay before fetching repos
+			await delayForRateLimit()
+
 			// Fetch repos
 			const reposResponse = await fetchWithRetry(
 				`${GITHUB_REST_URL}/users/${username}/repos?sort=updated&per_page=20`,
@@ -324,26 +345,37 @@ serve(async (req) => {
 					? await reposResponse.json()
 					: []
 
-			// Fetch languages for each repo (with error handling)
-			const reposWithLanguages = await Promise.all(
-				(Array.isArray(repos) ? repos.slice(0, 10) : []).map(async (repo: any) => {
-					try {
-						const langResponse = await fetchWithRetry(repo.languages_url, {
-							headers: {
-								Accept: 'application/vnd.github.v3+json',
-								'User-Agent': 'GitFolio-App',
-							},
-						})
-						if (!langResponse.ok) return repo
-						const langContentType = langResponse.headers.get('content-type')
-						if (!langContentType?.includes('application/json')) return repo
-						const languages = await langResponse.json()
-						return { ...repo, languageBreakdown: languages }
-					} catch {
-						return repo
+			// Fetch languages for each repo (with rate limiting and error handling)
+			// Note: We process sequentially with delays to avoid rate limiting
+			const reposToFetch = (Array.isArray(repos) ? repos.slice(0, 10) : [])
+			const reposWithLanguages = []
+
+			for (const repo of reposToFetch) {
+				// Add delay before fetching languages
+				await delayForRateLimit()
+
+				try {
+					const langResponse = await fetchWithRetry(repo.languages_url, {
+						headers: {
+							Accept: 'application/vnd.github.v3+json',
+							'User-Agent': 'GitFolio-App',
+						},
+					})
+					if (!langResponse.ok) {
+						reposWithLanguages.push(repo)
+						continue
 					}
-				})
-			)
+					const langContentType = langResponse.headers.get('content-type')
+					if (!langContentType?.includes('application/json')) {
+						reposWithLanguages.push(repo)
+						continue
+					}
+					const languages = await langResponse.json()
+					reposWithLanguages.push({ ...repo, languageBreakdown: languages })
+				} catch {
+					reposWithLanguages.push(repo)
+				}
+			}
 
 			// Transform to match GraphQL structure
 			userData = {

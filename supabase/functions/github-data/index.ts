@@ -527,27 +527,90 @@ serve(async (req) => {
 	}
 })
 
-// Language color mapping
+// Language color mapping - based on GitHub Linguist colors
 function getLanguageColor(language: string): string {
 	const colors: Record<string, string> = {
+		// Web & Script
 		TypeScript: '#3178c6',
 		JavaScript: '#f1e05a',
 		Python: '#3572A5',
+		HTML: '#e34c26',
+		CSS: '#563d7c',
+		SCSS: '#c6538c',
+		Sass: '#a53b70',
+		Less: '#1d365d',
+		Vue: '#41b883',
+		React: '#61dafb',
+
+		// Systems & Compiled
 		Java: '#b07219',
 		'C++': '#f34b7d',
 		C: '#555555',
+		'C#': '#178600',
 		Go: '#00ADD8',
 		Rust: '#dea584',
 		Ruby: '#701516',
 		PHP: '#4F5D95',
 		Swift: '#F05138',
 		Kotlin: '#A97BFF',
+		Scala: '#c22d40',
+		Elixir: '#6e4a7e',
+		Erlang: '#b83998',
+		Haskell: '#5e5086',
+		Julia: '#9558b2',
+		Lua: '#000080',
+		ObjectiveC: '#438eff',
+		Perl: '#0298c3',
+		R: '#198ce7',
+
+		// Mobile
 		Dart: '#00B4AB',
-		Vue: '#41b883',
-		HTML: '#e34c26',
-		CSS: '#563d7c',
+		Flutter: '#02569b',
+
+		// Data & Config
+		SQL: '#e38c00',
+		YAML: '#cb171e',
+		JSON: '#292929',
+		XML: '#0060ac',
+		Markdown: '#083fa1',
+		GraphQL: '#e535ab',
+
+		// Shell & DevOps
 		Shell: '#89e051',
 		Dockerfile: '#384d54',
+		Makefile: '#6d8086',
+		CMake: '#064f8c',
+		Ansible: '#41b883',
+		Terraform: '#7f42ae',
+
+		// Other
+		Zig: '#f7a41d',
+		Nim: '#ffc200',
+		V: '#5d87bd',
+		Elm: '#60b5cc',
+		Reason: '#da584b',
+		PureScript: '#1D222D',
+		Clarity: '#5546ff',
+		Solidity: '#aa6746',
+		Move: '#4d4d4d',
+
+		// Legacy & Misc
+		Assembly: '#6e4c13',
+		Fortran: '#4d41b1',
+		Ada: '#02f88c',
+		COBOL: '#00d1c1',
+		Lisp: '#3fb68b',
+		Clojure: '#91dc47',
+		Racket: '#3c5caa',
+		Scheme: '#1e4aec',
+		'APL': '#5a616a',
+		'F#': '#378bba',
+		Forth: '#341708',
+		Io: '#a8b9c0',
+		Tcl: '#e4cc96',
+		AutoHotkey: '#6594b9',
+		Nix: '#7e7eff',
+		Protocol Buffer: '#e6e7e8',
 	}
 	return colors[language] || '#8b949e'
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 interface Star {
 	x: number
@@ -29,6 +29,51 @@ interface StarConnection {
 	life: number
 }
 
+type PerformanceLevel = 'low' | 'medium' | 'high'
+
+const PERFORMANCE_CONFIGS = {
+	low: {
+		starCount: 100,
+		maxMeteors: 1,
+		maxConnections: 2,
+		glowEnabled: false,
+	},
+	medium: {
+		starCount: 200,
+		maxMeteors: 2,
+		maxConnections: 5,
+		glowEnabled: true,
+	},
+	high: {
+		starCount: 400,
+		maxMeteors: 3,
+		maxConnections: 8,
+		glowEnabled: true,
+	},
+}
+
+function usePerformanceConfig() {
+	const [config, setConfig] = useState(PERFORMANCE_CONFIGS.medium)
+
+	useEffect(() => {
+		const cpuCores = navigator.hardwareConcurrency || 4
+		const deviceMemory = (navigator as any).deviceMemory || 4
+		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+			navigator.userAgent
+		)
+
+		if (isMobile || cpuCores < 4 || deviceMemory < 4) {
+			setConfig(PERFORMANCE_CONFIGS.low)
+		} else if (cpuCores >= 8 && deviceMemory >= 8) {
+			setConfig(PERFORMANCE_CONFIGS.high)
+		} else {
+			setConfig(PERFORMANCE_CONFIGS.medium)
+		}
+	}, [])
+
+	return config
+}
+
 const StarField = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const animationRef = useRef<number>(0)
@@ -37,9 +82,10 @@ const StarField = () => {
 	const lastMeteorTime = useRef<number>(0)
 	const lastConnectionTime = useRef<number>(0)
 
+	const config = usePerformanceConfig()
+
 	const stars = useMemo(() => {
-		const starCount = 200
-		return Array.from({ length: starCount }, () => ({
+		return Array.from({ length: config.starCount }, () => ({
 			x: Math.random() * 100,
 			y: Math.random() * 100,
 			size: Math.random() * 2 + 0.5,
@@ -47,7 +93,7 @@ const StarField = () => {
 			speed: Math.random() * 0.02 + 0.005,
 			twinkleOffset: Math.random() * Math.PI * 2,
 		})) as Star[]
-	}, [])
+	}, [config.starCount])
 
 	useEffect(() => {
 		const canvas = canvasRef.current
@@ -139,13 +185,15 @@ const StarField = () => {
 
 			// Maybe spawn a meteor (every 3-8 seconds)
 			if (currentTime - lastMeteorTime.current > 3 + Math.random() * 5) {
-				createMeteor()
+				if (meteorsRef.current.length < config.maxMeteors) {
+					createMeteor()
+				}
 				lastMeteorTime.current = currentTime
 			}
 
 			// Maybe create a new connection (every 1-3 seconds)
 			if (currentTime - lastConnectionTime.current > 1 + Math.random() * 2) {
-				if (connectionsRef.current.length < 5) {
+				if (connectionsRef.current.length < config.maxConnections) {
 					createConnection()
 				}
 				lastConnectionTime.current = currentTime
@@ -250,11 +298,13 @@ const StarField = () => {
 					ctx.lineCap = 'round'
 					ctx.stroke()
 
-					// Glow effect
-					ctx.shadowColor = 'hsla(185, 90%, 75%, 0.8)'
-					ctx.shadowBlur = 15
-					ctx.stroke()
-					ctx.shadowBlur = 0
+					// Glow effect (only on medium/high performance)
+					if (config.glowEnabled) {
+						ctx.shadowColor = 'hsla(185, 90%, 75%, 0.8)'
+						ctx.shadowBlur = 15
+						ctx.stroke()
+						ctx.shadowBlur = 0
+					}
 				}
 
 				// Draw meteor head
@@ -307,7 +357,7 @@ const StarField = () => {
 				cancelAnimationFrame(animationRef.current)
 			}
 		}
-	}, [stars])
+	}, [stars, config])
 
 	return (
 		<canvas

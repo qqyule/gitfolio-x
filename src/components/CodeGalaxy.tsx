@@ -1,7 +1,7 @@
 import { Float, Html, Line, OrbitControls, Stars } from '@react-three/drei'
 import { Canvas, extend, useFrame } from '@react-three/fiber'
 import { GitCommit, Star } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import * as THREE from 'three'
 import type { GitHubData } from '@/types/github'
 
@@ -9,6 +9,59 @@ extend({ Line_: THREE.Line })
 
 interface CodeGalaxyProps {
 	data: GitHubData
+}
+
+// Performance levels based on device capabilities
+type PerformanceLevel = 'low' | 'medium' | 'high'
+
+const PERFORMANCE_CONFIGS = {
+	low: {
+		maxRepos: 10,
+		particleCount: 500,
+		connectionDensity: 0.3,
+		animationSpeed: 0.5,
+	},
+	medium: {
+		maxRepos: 20,
+		particleCount: 2000,
+		connectionDensity: 0.6,
+		animationSpeed: 1,
+	},
+	high: {
+		maxRepos: 30,
+		particleCount: 5000,
+		connectionDensity: 1,
+		animationSpeed: 1.5,
+	},
+}
+
+// Detect device performance level
+function usePerformanceLevel(): PerformanceLevel {
+	const [level, setLevel] = useState<PerformanceLevel>('medium')
+
+	useEffect(() => {
+		// Check hardware concurrency (CPU cores)
+		const cpuCores = navigator.hardwareConcurrency || 4
+
+		// Check device memory (if available)
+		const deviceMemory = (navigator as any).deviceMemory || 4
+
+		// Check for mobile device
+		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+			navigator.userAgent
+		)
+
+		// Determine performance level
+		if (isMobile || cpuCores < 4 || deviceMemory < 4) {
+			setLevel('low')
+		} else if (cpuCores >= 8 && deviceMemory >= 8) {
+			setLevel('high')
+		} else {
+			setLevel('medium')
+		}
+	}, [])
+
+	return level
 }
 
 // Language to color mapping
@@ -218,6 +271,10 @@ function CentralCore({ color }: { color: string }) {
 
 // Main galaxy scene
 function GalaxyScene({ data }: { data: GitHubData }) {
+	// Get performance level
+	const performanceLevel = usePerformanceLevel()
+	const config = PERFORMANCE_CONFIGS[performanceLevel]
+
 	// Get dominant language color for the core
 	const dominantColor = useMemo(() => {
 		if (data.languages.length > 0) {
@@ -228,7 +285,7 @@ function GalaxyScene({ data }: { data: GitHubData }) {
 
 	// Calculate positions for repositories
 	const repoNodes = useMemo(() => {
-		const repos = data.repositories.slice(0, 20) // Limit to 20 repos for performance
+		const repos = data.repositories.slice(0, config.maxRepos) // Dynamic limit based on performance
 
 		return repos.map((repo, index) => {
 			// Spiral positioning

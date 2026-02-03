@@ -292,6 +292,10 @@ serve(async (req) => {
 			})
 
 			if (!userResponse.ok) {
+				// 解析 Rate Limit headers 用于返回给前端
+				const rateLimitRemaining = userResponse.headers.get('x-ratelimit-remaining')
+				const rateLimitReset = userResponse.headers.get('x-ratelimit-reset')
+
 				if (userResponse.status === 404) {
 					return new Response(JSON.stringify({ error: 'User not found' }), {
 						status: 404,
@@ -299,8 +303,16 @@ serve(async (req) => {
 					})
 				}
 				if (userResponse.status === 403) {
+					// 如果 rate limit 确实耗尽 (remaining == 0)，返回 429 语义
+					// 注意: GitHub REST API 在 rate limit 耗尽时通常返回 403
+					const resetTime = rateLimitReset ? new Date(Number(rateLimitReset) * 1000).toLocaleString() : 'unknown time'
 					return new Response(
-						JSON.stringify({ error: 'GitHub API rate limit exceeded. Please try again later.' }),
+						JSON.stringify({
+							error: 'GitHub API rate limit exceeded.',
+							rateLimitRemaining: 0,
+							rateLimitReset: rateLimitReset,
+							message: `GitHub API Rate limit exceeded. Resets at ${resetTime}`
+						}),
 						{
 							status: 429,
 							headers: { ...corsHeaders, 'Content-Type': 'application/json' },

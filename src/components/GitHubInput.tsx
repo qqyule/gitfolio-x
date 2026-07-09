@@ -1,6 +1,6 @@
 import { ArrowRight, Github, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 const GitHubInput = () => {
 	const [username, setUsername] = useState('')
 	const [isLoading, setIsLoading] = useState(false)
-	const navigate = useNavigate()
+	const router = useRouter()
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -23,7 +23,7 @@ const GitHubInput = () => {
 
 		// Navigate to profile page with username
 		setTimeout(() => {
-			navigate(`/profile?user=${encodeURIComponent(username.trim())}`)
+			router.push(`/u/${encodeURIComponent(username.trim())}`)
 		}, 500)
 	}
 

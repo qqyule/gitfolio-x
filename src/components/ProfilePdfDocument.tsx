@@ -276,10 +276,12 @@ const ProfilePdfDocument = ({ data, analysis }: ProfilePdfProps) => {
 										: 'No description'}
 								</Text>
 								<View style={styles.repoMeta}>
-									<Text style={{ marginRight: 10 }}>⭐ {repo.stargazerCount}</Text>
-									<Text style={{ flexDirection: 'row', alignItems: 'center' }}>
-										<Text style={{ fontSize: 8 }}>●</Text> {repo.primaryLanguage?.name}
-									</Text>
+									<Text style={{ marginRight: 10 }}>⭐ {repo.stars}</Text>
+									{repo.language && (
+										<Text style={{ flexDirection: 'row', alignItems: 'center' }}>
+											<Text style={{ fontSize: 8, color: repo.languageColor || '#ccc' }}>●</Text> {repo.language}
+										</Text>
+									)}
 								</View>
 							</View>
 						))}

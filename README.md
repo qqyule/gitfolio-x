@@ -70,13 +70,28 @@
 - **贡献热力图**: 还原 GitHub 真实的贡献轨迹。
 - **项目卡片展示**: 优雅地陈列核心开发成果。
 
+## 🗺️ 演进路线 (Roadmap)
+
+### ✅ 已完成 (Phase 1: 基础架构重构)
+- [x] **底层框架跃迁**：从 Vite (SPA) 彻底重构为 **Next.js (App Router)**，实现更强的服务端渲染与动态路由能力。
+- [x] **SEO 降维打击**：废弃 `HashRouter`，启用标准路径路由（如 `/u/username`），全面支持基于服务端的 Metadata 与 OpenGraph 机制，解决搜索引擎抓取盲区。
+- [x] **消除类型债**：解决在 SSR 与 Client Components 边界的各种遗留类型问题，完美融合 3D 渲染器 (R3F) 与服务端逻辑。
+- [x] **社交基建落库**：在 Supabase 中完成社交核心表（浏览量与点赞统计）的 Migration 部署，为数据驱动打下基石。
+
+### 🚀 下一步计划 (Phase 2 & 3: 社交裂变与深度挖掘)
+- [ ] **极客名人堂 (Leaderboard)**：在首页增加“热门星系”或“本周焦点”板块，基于真实访问与点赞数据生成排行榜。
+- [ ] **OG 分享卡片**：基于 `@vercel/og` 动态截取 3D 星系画面，一键生成适配 Twitter / 朋友圈的视觉冲击海报。
+- [ ] **星际互动 (Like/Star)**：在详情页引入“发射火箭”点赞系统，辅以炫酷的 3D 粒子与音效反馈，打造膜拜体验。
+- [ ] **GitHub 挂件导出**：生成专属 Markdown Badge，允许开发者嵌入到自己的 GitHub Profile 中，打造个人技术名片。
+- [ ] **多维度数据融合**：接入 LeetCode、StackOverflow 等能力数据源，使“极客六维雷达”更加权威。
+
 ## 🛠 技术栈 (Tech Stack)
 
 本项目采用现代化全栈架构，整合了前沿技术：
 
 ### Core Framework
 
-- **[Vite](https://vitejs.dev/)** - 极速构建工具
+- **[Next.js 16](https://nextjs.org/)** - 带有 App Router 的现代服务端渲染框架
 - **[React 19](https://react.dev/)** - 最新版 UI 核心库
 - **[TypeScript](https://www.typescriptlang.org/)** - 类型安全保证
 
@@ -108,7 +123,7 @@
 ### State & Data
 
 - **[React Query](https://tanstack.com/query/latest)** - 异步数据管理
-- **[React Router](https://reactrouter.com/)** - 路由管理
+- **[Next.js App Router](https://nextjs.org/docs/app)** - 服务端组件与路由管理
 - **[React Hook Form](https://react-hook-form.com/)** + **[Zod](https://zod.dev/)** - 表单与验证
 
 ### Visualization
@@ -119,7 +134,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (Vite + React)               │
+│                   Frontend (Next.js App Router)              │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │  3D Galaxy  │  │  AI Report  │  │  Charts & Stats     │  │
 │  │  (R3F)      │  │  Display    │  │  (Recharts)         │  │

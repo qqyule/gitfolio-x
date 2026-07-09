@@ -52,7 +52,24 @@ export const analyzeCode = async (githubData: GitHubData): Promise<AIAnalysis> =
 		throw new Error(`不支持的 AI 提供商: ${config.provider}`)
 	}
 
-	return handler(githubData)
+	// 1. 检查前端会话缓存
+	const username = githubData.user?.login
+	const cacheKey = `ai_analysis_${username}`
+	if (username && typeof window !== 'undefined') {
+		const cached = sessionStorage.getItem(cacheKey)
+		if (cached) {
+			console.log('[Cache Hit] Returning AI analysis from frontend session')
+			return JSON.parse(cached) as AIAnalysis
+		}
+	}
+
+	const result = await handler(githubData)
+
+	// 写入缓存
+	if (username && typeof window !== 'undefined') {
+		sessionStorage.setItem(cacheKey, JSON.stringify(result))
+	}
+	return result
 }
 
 /**

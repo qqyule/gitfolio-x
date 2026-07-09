@@ -1,5 +1,6 @@
 import 'https://deno.land/x/xhr@0.1.0/mod.ts'
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
@@ -30,6 +31,44 @@ serve(async (req) => {
 		}
 
 		console.log('Analyzing code for:', githubData.user?.login)
+		const username = githubData.user?.login
+		
+		// 1. Initialize Supabase Client
+		const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+		const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+		let supabase = null;
+		if (supabaseUrl && supabaseServiceKey) {
+			supabase = createClient(supabaseUrl, supabaseServiceKey)
+		}
+
+		// 2. Check Cache
+		if (supabase && username) {
+			try {
+				const { data: cachedRow, error: cacheError } = await supabase
+					.from('ai_analysis_cache')
+					.select('analysis_data, updated_at')
+					.eq('username', username)
+					.single()
+
+				if (!cacheError && cachedRow) {
+					const updatedAt = new Date(cachedRow.updated_at)
+					const now = new Date()
+					const hoursDiff = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60)
+					
+					// Cache TTL: 7 days (168 hours)
+					if (hoursDiff <= 168) {
+						console.log(`Cache hit for AI analysis of ${username} (${hoursDiff.toFixed(1)} hours old)`)
+						return new Response(JSON.stringify({ analysis: cachedRow.analysis_data, fromCache: true }), {
+							headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						})
+					} else {
+						console.log(`Cache expired for AI analysis of ${username}`)
+					}
+				}
+			} catch (err) {
+				console.error('Error checking AI cache:', err)
+			}
+		}
 
 		// Prepare context for AI analysis
 		const analysisContext = {
@@ -286,7 +325,22 @@ ${JSON.stringify(analysisContext, null, 2)}
 			analysis = generateFallbackAnalysis(githubData)
 		}
 
-		return new Response(JSON.stringify({ analysis }), {
+		// 3. Save to Cache asynchronously
+		if (supabase && username) {
+			supabase
+				.from('ai_analysis_cache')
+				.upsert({ 
+					username: username,
+					analysis_data: analysis,
+					updated_at: new Date().toISOString()
+				}, { onConflict: 'username' })
+				.then(({ error }) => {
+					if (error) console.error('Failed to update AI cache:', error)
+					else console.log(`Successfully cached AI analysis for ${username}`)
+				})
+		}
+
+		return new Response(JSON.stringify({ analysis, fromCache: false }), {
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		})
 	} catch (error) {

@@ -37,6 +37,16 @@ export class GitHubRateLimitError extends Error {
  * @returns GitHub 数据
  */
 export async function fetchGitHubData(username: string): Promise<GitHubData> {
+	// 1. 检查前端会话缓存，避免路由切换时重复请求
+	const cacheKey = `github_data_${username}`
+	if (typeof window !== 'undefined') {
+		const cached = sessionStorage.getItem(cacheKey)
+		if (cached) {
+			console.log('[Cache Hit] Returning GitHub data from frontend session')
+			return JSON.parse(cached) as GitHubData
+		}
+	}
+
 	// 调用 Supabase Edge Function 'github-data'
 	const { data, error } = await supabase.functions.invoke('github-data', {
 		body: { username },
@@ -64,6 +74,10 @@ export async function fetchGitHubData(username: string): Promise<GitHubData> {
 		throw new Error(data.error)
 	}
 
-	// 返回成功获取的数据
-	return data as GitHubData
+	// 返回成功获取的数据并写入缓存
+	const result = data as GitHubData
+	if (typeof window !== 'undefined') {
+		sessionStorage.setItem(cacheKey, JSON.stringify(result))
+	}
+	return result
 }

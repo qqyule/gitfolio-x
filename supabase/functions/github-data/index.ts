@@ -622,7 +622,7 @@ function getLanguageColor(language: string): string {
 		Tcl: '#e4cc96',
 		AutoHotkey: '#6594b9',
 		Nix: '#7e7eff',
-		Protocol Buffer: '#e6e7e8',
+		'Protocol Buffer': '#e6e7e8',
 	}
 	return colors[language] || '#8b949e'
 }

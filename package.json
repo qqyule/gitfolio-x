@@ -88,12 +88,8 @@
 		"react-helmet-async": {
 			"react": "$react",
 			"react-dom": "$react-dom"
-		}
-	},
-	"pnpm": {
-		"overrides": {
-			"react": "^19.2.3",
-			"react-dom": "^19.2.3"
-		}
+		},
+		"react": "^19.2.3",
+		"react-dom": "^19.2.3"
 	}
 }

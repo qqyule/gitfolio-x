@@ -23,7 +23,7 @@ const GitHubInput = () => {
 
 		// Navigate to profile page with username
 		setTimeout(() => {
-			router.push(`/u/${encodeURIComponent(username.trim())}`)
+			router.push(`/u?user=${encodeURIComponent(username.trim())}`)
 		}, 500)
 	}
 

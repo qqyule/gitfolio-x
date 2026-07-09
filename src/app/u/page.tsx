@@ -23,8 +23,8 @@ import {
 	Star,
 	Users,
 } from 'lucide-react'
-import { useEffect, useRef, useState, use } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import galaxyHero from '@/assets/galaxy-hero.jpg'
 import CodeGalaxy from '@/components/CodeGalaxy'
@@ -40,9 +40,10 @@ import type { AIAnalysis, GitHubData } from '@/types/github'
 
 type AnalysisStage = 'fetching' | 'analyzing' | 'complete' | 'error'
 
-const Profile = ({ params }: { params: Promise<{ username: string }> }) => {
+const ProfileContent = () => {
 	const router = useRouter()
-	const { username } = use(params)
+	const searchParams = useSearchParams()
+	const username = searchParams.get('user')
 
 	const [stage, setStage] = useState<AnalysisStage>('fetching')
 	const [statusMessage, setStatusMessage] = useState('正在连接 GitHub API...')
@@ -613,6 +614,20 @@ const Profile = ({ params }: { params: Promise<{ username: string }> }) => {
 				)}
 			</main>
 		</div>
+	)
+}
+
+const Profile = () => {
+	return (
+		<Suspense
+			fallback={
+				<div className="min-h-screen bg-background flex items-center justify-center">
+					<div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+				</div>
+			}
+		>
+			<ProfileContent />
+		</Suspense>
 	)
 }
 

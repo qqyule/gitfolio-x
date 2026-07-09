@@ -21,16 +21,7 @@
     "afterFiles": [],
     "fallback": []
   },
-  "dynamicRoutes": [
-    {
-      "page": "/u/[username]",
-      "regex": "^/u/([^/]+?)(?:/)?$",
-      "routeKeys": {
-        "nxtPusername": "nxtPusername"
-      },
-      "namedRegex": "^/u/(?<nxtPusername>[^/]+?)(?:/)?$"
-    }
-  ],
+  "dynamicRoutes": [],
   "staticRoutes": [
     {
       "page": "/",
@@ -49,6 +40,12 @@
       "regex": "^/_not\\-found(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/u",
+      "regex": "^/u(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/u(?:/)?$"
     }
   ],
   "dataRoutes": [],

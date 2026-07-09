@@ -31,11 +31,11 @@ export interface AIConfig {
 
 /** 默认 AI 配置 */
 const defaultConfig: AIConfig = {
-	provider: (import.meta.env.VITE_AI_PROVIDER as AIProvider) || 'supabase',
+	provider: (process.env.NEXT_PUBLIC_AI_PROVIDER as AIProvider) || 'supabase',
 	openrouter: {
-		apiKey: import.meta.env.VITE_OPENROUTER_API_KEY || '',
+		apiKey: process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '',
 		model:
-			(import.meta.env.VITE_OPENROUTER_MODEL as OpenRouterModel) || 'google/gemini-2.0-flash-001',
+			(process.env.NEXT_PUBLIC_OPENROUTER_MODEL as OpenRouterModel) || 'google/gemini-2.0-flash-001',
 		baseUrl: 'https://openrouter.ai/api/v1',
 	},
 }

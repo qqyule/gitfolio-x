@@ -4,16 +4,12 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
-		"build:dev": "vite build --mode development",
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
-		"format": "biome format --write .",
-		"preview": "vite preview",
-		"test": "vitest",
-		"test:ui": "vitest --ui",
-		"test:coverage": "vitest run --coverage"
+		"format": "biome format --write ."
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^3.10.0",
@@ -56,14 +52,13 @@
 		"embla-carousel-react": "^8.6.0",
 		"input-otp": "^1.4.2",
 		"lucide-react": "^0.462.0",
+		"next": "^16.2.10",
 		"next-themes": "^0.4.6",
 		"react": "^19.2.3",
 		"react-day-picker": "^9.13.0",
 		"react-dom": "^19.2.3",
-		"react-helmet-async": "^2.0.5",
 		"react-hook-form": "^7.61.1",
 		"react-resizable-panels": "^2.1.9",
-		"react-router-dom": "^6.30.1",
 		"recharts": "^2.15.4",
 		"sonner": "^1.7.4",
 		"tailwind-merge": "^2.6.0",
@@ -82,16 +77,12 @@
 		"@types/react": "^19.2.7",
 		"@types/react-dom": "^19.2.3",
 		"@types/three": "^0.182.0",
-		"@vitejs/plugin-react-swc": "^3.11.0",
-		"@vitest/coverage-v8": "^4.0.16",
 		"autoprefixer": "^10.4.21",
 		"jsdom": "^27.4.0",
 		"lovable-tagger": "^1.1.13",
 		"postcss": "^8.5.6",
 		"tailwindcss": "^3.4.17",
-		"typescript": "^5.8.3",
-		"vite": "^5.4.19",
-		"vitest": "^4.0.16"
+		"typescript": "^5.8.3"
 	},
 	"overrides": {
 		"react-helmet-async": {

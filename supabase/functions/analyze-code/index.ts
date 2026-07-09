@@ -6,7 +6,7 @@ const corsHeaders = {
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const LOVABLE_AI_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions'
+// 移除强制写死的 Lovable AI URL，改为在函数内部动态获取，并默认使用开源友好的 OpenRouter
 
 serve(async (req) => {
 	if (req.method === 'OPTIONS') {
@@ -23,9 +23,10 @@ serve(async (req) => {
 			})
 		}
 
-		const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
-		if (!LOVABLE_API_KEY) {
-			throw new Error('LOVABLE_API_KEY is not configured')
+		const AI_URL = Deno.env.get('AI_GATEWAY_URL') || 'https://openrouter.ai/api/v1/chat/completions'
+		const API_KEY = Deno.env.get('OPENROUTER_API_KEY') || Deno.env.get('LOVABLE_API_KEY') || Deno.env.get('OPENAI_API_KEY')
+		if (!API_KEY) {
+			throw new Error('AI API Key is not configured (Please set OPENROUTER_API_KEY in Supabase secrets)')
 		}
 
 		console.log('Analyzing code for:', githubData.user?.login)
@@ -100,11 +101,13 @@ ${JSON.stringify(analysisContext, null, 2)}
 
 		for (let i = 0; i < MAX_RETRIES; i++) {
 			try {
-				response = await fetch(LOVABLE_AI_URL, {
+				response = await fetch(AI_URL, {
 					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${LOVABLE_API_KEY}`,
+						Authorization: `Bearer ${API_KEY}`,
 						'Content-Type': 'application/json',
+						'HTTP-Referer': 'https://gitfolio.qqyule.top', // Required by OpenRouter
+						'X-Title': 'GitFolio X', // Required by OpenRouter
 					},
 					body: JSON.stringify({
 						model: 'google/gemini-2.5-flash',

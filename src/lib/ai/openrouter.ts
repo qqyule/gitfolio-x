@@ -110,7 +110,7 @@ export const analyzeCodeWithOpenRouter = async (githubData: GitHubData): Promise
 	const config = getAIConfig()
 
 	if (!config.openrouter?.apiKey) {
-		throw new Error('OpenRouter API Key 未配置，请在环境变量中设置 VITE_OPENROUTER_API_KEY')
+		throw new Error('OpenRouter API Key 未配置，请使用服务端 Edge Function 或通过运行时配置提供 Key')
 	}
 
 	const { system, user } = buildAnalysisPrompt(githubData)

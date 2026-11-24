@@ -33,7 +33,7 @@ export interface AIConfig {
 const defaultConfig: AIConfig = {
 	provider: (process.env.NEXT_PUBLIC_AI_PROVIDER as AIProvider) || 'supabase',
 	openrouter: {
-		apiKey: process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '',
+		apiKey: '',
 		model:
 			(process.env.NEXT_PUBLIC_OPENROUTER_MODEL as OpenRouterModel) || 'google/gemini-2.0-flash-001',
 		baseUrl: 'https://openrouter.ai/api/v1',

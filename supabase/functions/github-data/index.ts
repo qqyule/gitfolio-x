@@ -9,6 +9,8 @@ const corsHeaders = {
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
 const GITHUB_REST_URL = 'https://api.github.com'
+const GITHUB_USERNAME_REGEX = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/
+const DEFAULT_FORCE_REFRESH_COOLDOWN_SECONDS = 300 // 5 minutes
 
 // Rate limiting for REST API (no token mode)
 // GitHub allows 60 requests/hour without token
@@ -37,6 +39,18 @@ function getCacheTTLHours(): number {
 	return 6 // Default 6 hours
 }
 
+// Get force-refresh cooldown in milliseconds, default to 5 minutes
+function getForceRefreshCooldownMs(): number {
+	const envValue = Deno.env.get('GITHUB_FORCE_REFRESH_COOLDOWN_SECONDS')
+	if (envValue) {
+		const parsed = Number.parseInt(envValue, 10)
+		if (!Number.isNaN(parsed) && parsed >= 0) {
+			return parsed * 1000
+		}
+	}
+	return DEFAULT_FORCE_REFRESH_COOLDOWN_SECONDS * 1000
+}
+
 // Initialize Supabase client
 function getSupabaseClient() {
 	return createClient(
@@ -45,8 +59,8 @@ function getSupabaseClient() {
 	)
 }
 
-// Check cache for user data
-async function getCachedData(username: string): Promise<any | null> {
+// Check cache for user data and return entry with age if not expired
+async function getCacheEntry(username: string): Promise<{ data: any; ageMs: number } | null> {
 	const supabase = getSupabaseClient()
 	const { data, error } = await supabase
 		.from('github_cache')
@@ -62,7 +76,8 @@ async function getCachedData(username: string): Promise<any | null> {
 	// Check if cache is still valid
 	const updatedAt = new Date(data.updated_at)
 	const now = new Date()
-	const hoursDiff = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60)
+	const ageMs = Math.max(0, now.getTime() - updatedAt.getTime())
+	const hoursDiff = ageMs / (1000 * 60 * 60)
 	const cacheTTL = getCacheTTLHours()
 
 	if (hoursDiff > cacheTTL) {
@@ -73,7 +88,7 @@ async function getCachedData(username: string): Promise<any | null> {
 	}
 
 	console.log(`Cache hit for ${username} (${hoursDiff.toFixed(1)} hours old)`)
-	return data.data
+	return { data: data.data, ageMs }
 }
 
 // Save data to cache
@@ -143,7 +158,7 @@ query($username: String!) {
     following {
       totalCount
     }
-    repositories(first: 20, orderBy: {field: UPDATED_AT, direction: DESC}, ownerAffiliations: OWNER) {
+    repositories(first: 20, privacy: PUBLIC, orderBy: {field: UPDATED_AT, direction: DESC}, ownerAffiliations: OWNER) {
       totalCount
       nodes {
         name
@@ -210,25 +225,57 @@ serve(async (req) => {
 	}
 
 	try {
-		const { username, forceRefresh } = await req.json()
+		let body: any
+		try {
+			body = await req.json()
+		} catch {
+			return new Response(JSON.stringify({ error: 'Invalid JSON request body' }), {
+				status: 400,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			})
+		}
 
-		if (!username) {
+		const rawUsername = body?.username
+		const forceRefresh = body?.forceRefresh === true
+
+		if (typeof rawUsername !== 'string' || !rawUsername.trim()) {
 			return new Response(JSON.stringify({ error: 'Username is required' }), {
 				status: 400,
 				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 			})
 		}
 
-		console.log(`Fetching GitHub data for: ${username}`)
+		const normalizedUsername = rawUsername.trim()
+		if (!GITHUB_USERNAME_REGEX.test(normalizedUsername)) {
+			return new Response(JSON.stringify({ error: 'Invalid GitHub username format' }), {
+				status: 400,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			})
+		}
 
-		// Check cache first (unless force refresh)
-		if (!forceRefresh) {
-			const cachedData = await getCachedData(username)
-			if (cachedData) {
+		console.log(`Fetching GitHub data for: ${normalizedUsername}`)
+
+		// Check cache first; enforce cooldown on forceRefresh to protect GITHUB_TOKEN quota
+		const cacheEntry = await getCacheEntry(normalizedUsername)
+		if (cacheEntry) {
+			if (!forceRefresh) {
 				console.log('Returning cached data')
-				return new Response(JSON.stringify({ ...cachedData, fromCache: true }), {
+				return new Response(JSON.stringify({ ...cacheEntry.data, fromCache: true }), {
 					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 				})
+			}
+
+			const cooldownMs = getForceRefreshCooldownMs()
+			if (cacheEntry.ageMs < cooldownMs) {
+				console.log(
+					`Ignoring forceRefresh during cooldown (${Math.round(cacheEntry.ageMs / 1000)}s < ${Math.round(cooldownMs / 1000)}s)`
+				)
+				return new Response(
+					JSON.stringify({ ...cacheEntry.data, fromCache: true, refreshCooldown: true }),
+					{
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
+				)
 			}
 		}
 
@@ -248,7 +295,7 @@ serve(async (req) => {
 				},
 				body: JSON.stringify({
 					query: USER_QUERY,
-					variables: { username },
+					variables: { username: normalizedUsername },
 				}),
 			})
 
@@ -279,12 +326,13 @@ serve(async (req) => {
 		} else {
 			// Fallback to REST API (no token needed for public data)
 			console.log('No GitHub token, using REST API')
+			const encodedUsername = encodeURIComponent(normalizedUsername)
 
 			// Add delay to avoid rate limiting
 			await delayForRateLimit()
 
 			// Fetch user profile
-			const userResponse = await fetchWithRetry(`${GITHUB_REST_URL}/users/${username}`, {
+			const userResponse = await fetchWithRetry(`${GITHUB_REST_URL}/users/${encodedUsername}`, {
 				headers: {
 					Accept: 'application/vnd.github.v3+json',
 					'User-Agent': 'GitFolio-App',
@@ -337,7 +385,7 @@ serve(async (req) => {
 
 			// Fetch repos
 			const reposResponse = await fetchWithRetry(
-				`${GITHUB_REST_URL}/users/${username}/repos?sort=updated&per_page=20`,
+				`${GITHUB_REST_URL}/users/${encodedUsername}/repos?sort=updated&per_page=20`,
 				{
 					headers: {
 						Accept: 'application/vnd.github.v3+json',
@@ -357,9 +405,11 @@ serve(async (req) => {
 					? await reposResponse.json()
 					: []
 
-			// Fetch languages for each repo (with rate limiting and error handling)
+			// Fetch languages for each public repo (with rate limiting and error handling)
 			// Note: We process sequentially with delays to avoid rate limiting
-			const reposToFetch = (Array.isArray(repos) ? repos.slice(0, 10) : [])
+			const reposToFetch = Array.isArray(repos)
+				? repos.filter((repo: any) => repo && repo.private !== true).slice(0, 10)
+				: []
 			const reposWithLanguages = []
 
 			for (const repo of reposToFetch) {
@@ -367,6 +417,13 @@ serve(async (req) => {
 				await delayForRateLimit()
 
 				try {
+					if (
+						typeof repo.languages_url !== 'string' ||
+						!repo.languages_url.startsWith(`${GITHUB_REST_URL}/`)
+					) {
+						reposWithLanguages.push(repo)
+						continue
+					}
 					const langResponse = await fetchWithRetry(repo.languages_url, {
 						headers: {
 							Accept: 'application/vnd.github.v3+json',
@@ -439,10 +496,15 @@ serve(async (req) => {
 			})
 		}
 
+		// Ensure no private repository metadata leaks to public output
+		const publicRepos = (userData.repositories?.nodes || []).filter(
+			(repo: any) => repo && repo.isPrivate !== true
+		)
+
 		// Process and aggregate language statistics
 		const languageStats: Record<string, { bytes: number; color: string }> = {}
 
-		userData.repositories?.nodes?.forEach((repo: any) => {
+		publicRepos.forEach((repo: any) => {
 			repo.languages?.edges?.forEach((edge: any) => {
 				const langName = edge.node.name
 				if (!languageStats[langName]) {
@@ -483,21 +545,20 @@ serve(async (req) => {
 				followers: userData.followers?.totalCount || 0,
 				following: userData.following?.totalCount || 0,
 			},
-			repositories:
-				userData.repositories?.nodes?.map((repo: any) => ({
-					name: repo.name,
-					description: repo.description,
-					url: repo.url,
-					stars: repo.stargazerCount,
-					forks: repo.forkCount,
-					language: repo.primaryLanguage?.name,
-					languageColor: repo.primaryLanguage?.color,
-					createdAt: repo.createdAt,
-					updatedAt: repo.updatedAt,
-					pushedAt: repo.pushedAt,
-					commitCount: repo.defaultBranchRef?.target?.history?.totalCount || 0,
-					recentCommits: repo.defaultBranchRef?.target?.history?.nodes?.slice(0, 10) || [],
-				})) || [],
+			repositories: publicRepos.map((repo: any) => ({
+				name: repo.name,
+				description: repo.description,
+				url: repo.url,
+				stars: repo.stargazerCount,
+				forks: repo.forkCount,
+				language: repo.primaryLanguage?.name,
+				languageColor: repo.primaryLanguage?.color,
+				createdAt: repo.createdAt,
+				updatedAt: repo.updatedAt,
+				pushedAt: repo.pushedAt,
+				commitCount: repo.defaultBranchRef?.target?.history?.totalCount || 0,
+				recentCommits: repo.defaultBranchRef?.target?.history?.nodes?.slice(0, 10) || [],
+			})),
 			languages: sortedLanguages,
 			contributions: {
 				total: userData.contributionsCollection?.contributionCalendar?.totalContributions || 0,
@@ -508,23 +569,21 @@ serve(async (req) => {
 			},
 			stats: {
 				totalRepos: userData.repositories?.totalCount || 0,
-				totalStars:
-					userData.repositories?.nodes?.reduce(
-						(sum: number, repo: any) => sum + (repo.stargazerCount || 0),
-						0
-					) || 0,
-				totalForks:
-					userData.repositories?.nodes?.reduce(
-						(sum: number, repo: any) => sum + (repo.forkCount || 0),
-						0
-					) || 0,
+				totalStars: publicRepos.reduce(
+					(sum: number, repo: any) => sum + (repo.stargazerCount || 0),
+					0
+				),
+				totalForks: publicRepos.reduce(
+					(sum: number, repo: any) => sum + (repo.forkCount || 0),
+					0
+				),
 			},
 		}
 
 		console.log('Successfully fetched GitHub data')
 
-		// Cache the response in background (don't await)
-		setCachedData(username, response).catch((err) => console.error('Background cache failed:', err))
+		// Persist cache so subsequent server-side calls (e.g. analyze-code) read verified data
+		await setCachedData(normalizedUsername, response)
 
 		return new Response(JSON.stringify({ ...response, fromCache: false }), {
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
